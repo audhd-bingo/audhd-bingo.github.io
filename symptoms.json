@@ -1,50 +1,513 @@
 {
-  "videos": {
-    "signs5":   {"id": "7kBGUcGeKvM", "title": "5 Signs You Have AuDHD"},
-    "diff5":    {"id": "rihlhHR3tow", "title": "Autism vs ADHD: 5 Key Differences"},
-    "mask":     {"id": "ZlFSeamEJbA", "title": "5 Signs You're a High-Masking Autistic With ADHD"},
-    "both":     {"id": "lsyVwDh99rQ", "title": "Can you have ADHD and autism at the same time?"}
-  },
   "symptoms": [
-    {"name": "Time blindness — '5 minutes' becomes 50", "video": "both", "start": 60, "end": 100},
-    {"name": "Losing the thing in your hand", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Hyperfixation for weeks, then total drop", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Zoning out mid-conversation", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Rambling / talking over people", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Rehearsing conversations in your head", "video": "mask", "start": 0, "end": 0},
-    {"name": "Stimming to regulate", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Sensory overload meltdown", "video": "both", "start": 120, "end": 150},
-    {"name": "Masking until you're exhausted", "video": "mask", "start": 0, "end": 0},
-    {"name": "Difficulty with transitions", "video": "both", "start": 0, "end": 0},
-    {"name": "Interrupting because you'll forget", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Flat affect (resting face)", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Task paralysis / executive dysfunction", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Rejection sensitivity", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Special interest monologues", "video": "mask", "start": 0, "end": 0},
-    {"name": "Fidgeting constantly", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Forgetting to eat or drink", "video": "both", "start": 0, "end": 0},
-    {"name": "Reading social cues wrong", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Oversharing / too blunt", "video": "mask", "start": 0, "end": 0},
-    {"name": "Can't start a task unless it's urgent", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Echolalia / repeating phrases", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Sensory-seeking (crash, squeeze, weighted)", "video": "both", "start": 0, "end": 0},
-    {"name": "Invisible panic before phone calls", "video": "both", "start": 0, "end": 0},
-    {"name": "Collecting hobbies, finishing none", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Body feels things others don't notice", "video": "mask", "start": 0, "end": 0},
-    {"name": "Hyperfocus for hours", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Scripting what to say", "video": "mask", "start": 0, "end": 0},
-    {"name": "Detail blindness then whole checklist matters", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Forgot why you walked into the room", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Textures / tags unbearable", "video": "both", "start": 0, "end": 0},
-    {"name": "Needs a routine but can't keep one", "video": "both", "start": 0, "end": 0},
-    {"name": "Obsessive rules fairness", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Can't filter background noise", "video": "mask", "start": 0, "end": 0},
-    {"name": "Meltdown after masking all day", "video": "mask", "start": 0, "end": 0},
-    {"name": "Music strictly one song on repeat", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Loves a good spreadsheet to organise", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Takes jokes literally", "video": "diff5", "start": 0, "end": 0},
-    {"name": "Exhausted by socialising even when fun", "video": "mask", "start": 0, "end": 0},
-    {"name": "Keeps 'nice to haves' in your bag for 3 months", "video": "signs5", "start": 0, "end": 0},
-    {"name": "Double empathy — reads animals better than people", "video": "both", "start": 0, "end": 0}
-  ]
+    {
+      "name": "Time blindness — '5 minutes' becomes 50",
+      "clips": [
+        {
+          "video": "vwk_iX7",
+          "start": 710,
+          "end": 717,
+          "score": 4,
+          "title": "Time Blindness - An ADHD or Executive Dysfunction Trait",
+          "text": "has ADHD and time blindness. Cuz my five minutes&nbsp; is five minutes. It's 300 seconds. It's like there's&nbsp;&nbsp;"
+        },
+        {
+          "video": "vrC3tG3",
+          "start": 37,
+          "end": 46,
+          "score": 2,
+          "title": "How to (Actually) Get Out the Door on Time",
+          "text": "was a kid I made us late all the time was a kid I made us late all the time because of stuff I forgot until right because of stuff I forgot until right because of stuff I forgot until right before we left or five minutes after we before we left or five minutes after we before we left or five minutes after we left as a teenager it was almost left as a teenager it was almost left as a teenager it was almost impossible for me to wake up in the impossible for me to wake up in the"
+        },
+        {
+          "video": "vwk_iX7",
+          "start": 0,
+          "end": 11,
+          "score": 2,
+          "title": "Time Blindness - An ADHD or Executive Dysfunction Trait",
+          "text": "If you lose track of time, can't estimate time,&nbsp; or if you struggle to be on time, you may be&nbsp;&nbsp; experiencing something called time blindness. So&nbsp; in this video, you'll learn what is time blindness&nbsp;&nbsp;"
+        },
+        {
+          "video": "vwk_iX7",
+          "start": 16,
+          "end": 25,
+          "score": 2,
+          "title": "Time Blindness - An ADHD or Executive Dysfunction Trait",
+          "text": "creative. So real quick, time blindness is a&nbsp; symptom really common in people with ADHD or other&nbsp;&nbsp;"
+        }
+      ]
+    },
+    {
+      "name": "Losing the thing in your hand",
+      "clips": []
+    },
+    {
+      "name": "Hyperfixation for weeks, then total drop",
+      "clips": [
+        {
+          "video": "vZlFSea",
+          "start": 171,
+          "end": 174,
+          "score": 4,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "Sign number 2 Intense Focus on Special Interests."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 194,
+          "end": 202,
+          "score": 4,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "to get bored or distracted pretty often. For ASD, you might have long special interests and stick with those interests&nbsp; for longer periods of time."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 697,
+          "end": 703,
+          "score": 4,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "So if you struggle with social interactions, have an intense focus on special interests, are sensitive to sensory stimuli,"
+        }
+      ]
+    },
+    {
+      "name": "Zoning out mid-conversation",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 333,
+          "end": 340,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "without being weird about it. Or, you're zoning out because you're overwhelmed and shutting down, or interrupting&nbsp; because you want to say"
+        },
+        {
+          "video": "vZlFSea",
+          "start": 162,
+          "end": 169,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "when I miss large parts of the conversation due to zoning out, or my mind wandering, especially if the person I'm talking to is"
+        },
+        {
+          "video": "vZlFSea",
+          "start": 468,
+          "end": 473,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "Eventually, my ASD brain can't function and I'll start zoning out, and I have to do this"
+        },
+        {
+          "video": "vZlFSea",
+          "start": 487,
+          "end": 493,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "when I just start zoning out. So then I leave soon after to go home."
+        }
+      ]
+    },
+    {
+      "name": "Rambling / talking over people",
+      "clips": [
+        {
+          "video": "vwk_iX7",
+          "start": 51,
+          "end": 57,
+          "score": 2,
+          "title": "Time Blindness - An ADHD or Executive Dysfunction Trait",
+          "text": "blurt out answers before a question is finished,&nbsp; or they might start another task while cooking and&nbsp;&nbsp;"
+        }
+      ]
+    },
+    {
+      "name": "Rehearsing conversations in your head",
+      "clips": []
+    },
+    {
+      "name": "Stimming to regulate",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 428,
+          "end": 432,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "and productivity mode ON. ADHD loves the stimulation."
+        },
+        {
+          "video": "v7kBGUc",
+          "start": 593,
+          "end": 600,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "This is especially true after socializing, over-stimulation, or overexertion, which happens a lot when you have ADHD mixed in there."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 308,
+          "end": 312,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "Okay, Sign Number 3 Sensitivity to Sensory Stimuli"
+        },
+        {
+          "video": "vZlFSea",
+          "start": 332,
+          "end": 342,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "of sensitivity to sensory stimuli. You might avoid certain stimuli, while also having a strong&nbsp; pull towards other stimuli. For the combination I feel like"
+        }
+      ]
+    },
+    {
+      "name": "Sensory overload meltdown",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 411,
+          "end": 417,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "You love the idea of being out and about until sensory overload takes over. Getting out of the house,"
+        }
+      ]
+    },
+    {
+      "name": "Masking until you're exhausted",
+      "clips": [
+        {
+          "video": "vlsyVwD",
+          "start": 385,
+          "end": 391,
+          "score": 2,
+          "title": "AuDHD explained: Can you have ADHD and autism at the same time?",
+          "text": "This can lead to behaviors like. Really almost pretending to be on top of things at work without asking for help"
+        }
+      ]
+    },
+    {
+      "name": "Difficulty with transitions",
+      "clips": []
+    },
+    {
+      "name": "Interrupting because you'll forget",
+      "clips": []
+    },
+    {
+      "name": "Flat affect (resting face)",
+      "clips": []
+    },
+    {
+      "name": "Task paralysis / executive dysfunction",
+      "clips": [
+        {
+          "video": "vrihlhH",
+          "start": 583,
+          "end": 590,
+          "score": 2,
+          "title": "Autism vs ADHD: 5 Key Differences Explained",
+          "text": "even if it can be hard to plan due to executive functioning challenges at times. ADHD folks are constantly juggling"
+        },
+        {
+          "video": "vZlFSea",
+          "start": 528,
+          "end": 532,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "Sign Number 5 Executive Functioning Challenges"
+        },
+        {
+          "video": "vZlFSea",
+          "start": 654,
+          "end": 661,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "so for the combination, executive functioning challenges show up a lot with both being autistic and having ADHD."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 707,
+          "end": 712,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "and have executive functioning challenges, you might have autism and ADHD combo,"
+        }
+      ]
+    },
+    {
+      "name": "Rejection sensitivity",
+      "clips": [
+        {
+          "video": "vjM3azh",
+          "start": 18,
+          "end": 28,
+          "score": 4,
+          "title": "How to Deal with Rejection Sensitivity",
+          "text": "including me but before i explain why i including me but before i explain why i think it's important to clarify the think it's important to clarify the think it's important to clarify the difference between the terms rejection difference between the terms rejection difference between the terms rejection sensitive dysphoria or rsd sensitive dysphoria or rsd sensitive dysphoria or rsd and rejection sensitivity or rs and rejection sensitivity or rs and rejection sensitivity or rs rejection sensitive dysphoria is a term rejection sensitive dysphoria is a term rejection sensitive dysphoria is a term that's being talked about a lot in the that's being talked about a lot in the"
+        },
+        {
+          "video": "vjM3azh",
+          "start": 2,
+          "end": 18,
+          "score": 2,
+          "title": "How to Deal with Rejection Sensitivity",
+          "text": "hello brains i wanted to make this video hello brains i wanted to make this video a long time ago but a long time ago but a long time ago but i was afraid of rejection uh the irony i was afraid of rejection uh the irony i was afraid of rejection uh the irony [Music] [Music] [Music] rejection sensitivity is a huge issue rejection sensitivity is a huge issue rejection sensitivity is a huge issue for a lot of us with adhd for a lot of us with adhd for a lot of us with adhd including me but before i explain why i including me but before i explain why i"
+        },
+        {
+          "video": "vjM3azh",
+          "start": 37,
+          "end": 45,
+          "score": 2,
+          "title": "How to Deal with Rejection Sensitivity",
+          "text": "after a real or perceived loss of after a real or perceived loss of approval love or respect approval love or respect approval love or respect according to dodson rsd appears to be according to dodson rsd appears to be according to dodson rsd appears to be the one emotional condition found only the one emotional condition found only the one emotional condition found only with adhd with adhd with adhd and he recommends specific medications and he recommends specific medications"
+        }
+      ]
+    },
+    {
+      "name": "Special interest monologues",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 356,
+          "end": 361,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "So you're fully-engaged, oversharing, info-dumping and carrying the whole conversation."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 171,
+          "end": 174,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "Sign number 2 Intense Focus on Special Interests."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 194,
+          "end": 202,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "to get bored or distracted pretty often. For ASD, you might have long special interests and stick with those interests&nbsp; for longer periods of time."
+        },
+        {
+          "video": "vZlFSea",
+          "start": 697,
+          "end": 703,
+          "score": 2,
+          "title": "5 Signs You're A High-Masking Autistic With ADHD",
+          "text": "So if you struggle with social interactions, have an intense focus on special interests, are sensitive to sensory stimuli,"
+        }
+      ]
+    },
+    {
+      "name": "Fidgeting constantly",
+      "clips": []
+    },
+    {
+      "name": "Forgetting to eat or drink",
+      "clips": []
+    },
+    {
+      "name": "Reading social cues wrong",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 343,
+          "end": 349,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "to get it out there. And mix in the autistic tendency not to get social cues exactly right for knowing when to jump in, and before you know it,"
+        }
+      ]
+    },
+    {
+      "name": "Oversharing / too blunt",
+      "clips": []
+    },
+    {
+      "name": "Can't start a task unless it's urgent",
+      "clips": []
+    },
+    {
+      "name": "Echolalia / repeating phrases",
+      "clips": []
+    },
+    {
+      "name": "Sensory-seeking (crash, squeeze, weighted)",
+      "clips": []
+    },
+    {
+      "name": "Invisible panic before phone calls",
+      "clips": []
+    },
+    {
+      "name": "Collecting hobbies, finishing none",
+      "clips": []
+    },
+    {
+      "name": "Body feels things others don't notice",
+      "clips": []
+    },
+    {
+      "name": "Hyperfocus for hours",
+      "clips": []
+    },
+    {
+      "name": "Scripting what to say",
+      "clips": []
+    },
+    {
+      "name": "Detail blindness then whole checklist matters",
+      "clips": []
+    },
+    {
+      "name": "Forgot why you walked into the room",
+      "clips": []
+    },
+    {
+      "name": "Textures / tags unbearable",
+      "clips": []
+    },
+    {
+      "name": "Needs a routine but can't keep one",
+      "clips": []
+    },
+    {
+      "name": "Obsessive rules fairness",
+      "clips": []
+    },
+    {
+      "name": "Can't filter background noise",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 424,
+          "end": 430,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "Seems like a great idea, right? A nice cafe, a little background noise, and productivity mode ON."
+        }
+      ]
+    },
+    {
+      "name": "Meltdown after masking all day",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 491,
+          "end": 499,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "Nope. No distractions for autistic brain. It's already halfway into shutdown mode, regretting every life choice&nbsp; that led to this moment."
+        },
+        {
+          "video": "v7kBGUc",
+          "start": 605,
+          "end": 612,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "to keep going, keep pushing through, until my autistic brain hits&nbsp; a full meltdown or shutdown because I've ignored my limits for too long."
+        },
+        {
+          "video": "vrihlhH",
+          "start": 182,
+          "end": 188,
+          "score": 2,
+          "title": "Autism vs ADHD: 5 Key Differences Explained",
+          "text": "then, Boom! out comes the meltdown or shutdown. At least that's how it can look to an observer."
+        }
+      ]
+    },
+    {
+      "name": "Music strictly one song on repeat",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 190,
+          "end": 196,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "And now let me play that conversation that happened 17 years ago on repeat. Bedtime is a classic."
+        }
+      ]
+    },
+    {
+      "name": "Loves a good spreadsheet to organise",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 48,
+          "end": 56,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "Today's your day to get organized. You sit down, make a beautiful to-do list, maybe even color code it. Add a few sticky notes,"
+        }
+      ]
+    },
+    {
+      "name": "Takes jokes literally",
+      "clips": []
+    },
+    {
+      "name": "Exhausted by socialising even when fun",
+      "clips": [
+        {
+          "video": "v7kBGUc",
+          "start": 291,
+          "end": 297,
+          "score": 2,
+          "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+          "text": "And then, your social battery drains instantly. The irony? Sometimes it's actually you,"
+        }
+      ]
+    },
+    {
+      "name": "Keeps 'nice to haves' in your bag for 3 months",
+      "clips": []
+    },
+    {
+      "name": "Double empathy — reads animals better than people",
+      "clips": []
+    }
+  ],
+  "videos": {
+    "v7kBGUc": {
+      "id": "7kBGUcGeKvM",
+      "title": "5 Signs You Have AuDHD (ADHD and Autism)",
+      "dur": 0
+    },
+    "vrihlhH": {
+      "id": "rihlhHR3tow",
+      "title": "Autism vs ADHD: 5 Key Differences Explained",
+      "dur": 0
+    },
+    "vZlFSea": {
+      "id": "ZlFSeamEJbA",
+      "title": "5 Signs You're A High-Masking Autistic With ADHD",
+      "dur": 0
+    },
+    "vlsyVwD": {
+      "id": "lsyVwDh99rQ",
+      "title": "AuDHD explained: Can you have ADHD and autism at the same time?",
+      "dur": 0
+    },
+    "vjM3azh": {
+      "id": "jM3azhiOy5E",
+      "title": "How to Deal with Rejection Sensitivity",
+      "dur": 0
+    },
+    "vrC3tG3": {
+      "id": "rC3tG3lbrNM",
+      "title": "How to (Actually) Get Out the Door on Time",
+      "dur": 0
+    },
+    "vwk_iX7": {
+      "id": "wk_iX7pXGwk",
+      "title": "Time Blindness - An ADHD or Executive Dysfunction Trait",
+      "dur": 0
+    }
+  }
 }

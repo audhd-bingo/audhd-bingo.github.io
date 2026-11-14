@@ -34,6 +34,16 @@
   .status{font-size:.82rem;color:var(--dim)}
   #player{width:100%;aspect-ratio:16/9;border-radius:10px;background:#000;margin:10px 0}
   #player iframe{width:100%;height:100%;border:none;border-radius:10px}
+  .gallery{display:flex;align-items:stretch;gap:8px}
+  .gallery-btn{flex:0 0 40px;background:#2a2a3e;color:var(--ink);font-size:1rem;padding:6px 0;border-radius:8px}
+  .cliplabel{margin:2px 0 0;font-size:.85rem;color:var(--dim);min-height:1.2em}
+  .cliplabel .dim{color:#6f6c92}
+  .trans{margin-top:6px;border:1px solid #3a3a54;border-radius:10px;overflow:hidden}
+  .trans-toggle{width:100%;background:#1d1d2d;color:var(--ink);border:none;padding:8px 12px;font-size:.85rem;text-align:left;cursor:pointer}
+  .trans-body{max-height:38vh;overflow-y:auto;padding:10px 12px;font-size:.82rem;line-height:1.55;color:#cfcce2;white-space:pre-wrap}
+  .trans-body .cur{color:var(--mark);font-weight:600}
+  .trans-resize{height:8px;cursor:ns-resize;background:#2a2a3e}
+  .trans-resize:hover{background:var(--acc)}
   #callLog{max-height:160px;overflow-y:auto;margin-top:10px;font-size:.85rem;color:var(--dim)}
   #callLog div{padding:3px 0;border-bottom:1px solid #383a56}
   #callLog .active{color:var(--mark);font-weight:700}
@@ -70,7 +80,21 @@
     <div class="callout">
       <h2>Current call</h2>
       <div class="current" id="currentCall">—</div>
-      <div id="player"></div>
+
+      <div id="videoArea">
+        <div class="gallery">
+          <button id="clipPrev" class="gallery-btn" aria-label="Previous clip">▲</button>
+          <div id="player"></div>
+          <button id="clipNext" class="gallery-btn" aria-label="Next clip">▼</button>
+        </div>
+        <div class="cliplabel"><span id="clipTitle"></span> <span id="clipCount" class="dim"></span></div>
+        <div id="transFrame" class="trans hidden">
+          <button id="transToggle" class="trans-toggle">Transcript of this clip <span id="transCaret">▸</span></button>
+          <div id="transBody" class="trans-body" style="max-height:180px"></div>
+          <div id="transResize" class="trans-resize"></div>
+        </div>
+      </div>
+
       <div class="status" id="hostStatus"></div>
       <div class="tools" style="margin:12px 0 0">
         <button id="drawBtn">🎲 Draw next symptom</button>
@@ -233,16 +257,117 @@ function draw(){
   document.getElementById('hostStatus').textContent=(callOrder.length-callIndex)+' symptoms left to call.';
 }
 
+var curSy=null, curClipIdx=0, transCache={};
+
 function showVideo(sy){
+  curSy=sy;
+  curClipIdx=0;
+  renderClip();
+}
+
+function renderClip(){
   var box=document.getElementById('player');
-  if(!sy.video){
-    box.innerHTML='<div style="padding:14px;color:#9a97bd">No video clip for this one — keep talking about it!</div>';
+  var titleEl=document.getElementById('clipTitle');
+  var cnt=document.getElementById('clipCount');
+  var prev=document.getElementById('clipPrev'), next=document.getElementById('clipNext');
+  if(!curSy || !curSy.clips || !curSy.clips.length){
+    box.innerHTML='<div style="padding:14px;color:#9a97bd">No clip for this one — keep talking about it!</div>';
+    titleEl.textContent=''; cnt.textContent='';
+    prev.disabled=next.disabled=true;
+    document.getElementById('transFrame').classList.add('hidden');
     return;
   }
-  var url='https://www.youtube.com/embed/'+sy.video.id+
-    '?start='+(sy.video.start||0)+'&end='+(sy.video.end||0)+'&rel=0';
+  var clip=curSy.clips[curClipIdx];
+  var url='https://www.youtube.com/embed/'+clip.id+
+    '?start='+(clip.start||0)+'&end='+(clip.end||0)+'&rel=0&autoplay=0';
   box.innerHTML='<iframe src="'+url+'" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+  titleEl.textContent=clip.title;
+  cnt.textContent='  '+(curClipIdx+1)+' / '+curSy.clips.length;
+  prev.disabled=curClipIdx===0;
+  next.disabled=curClipIdx===curSy.clips.length-1;
+  loadTranscript(clip);
 }
+
+document.getElementById('clipPrev').addEventListener('click',function(){
+  if(curSy && curClipIdx>0){ curClipIdx--; renderClip(); }
+});
+document.getElementById('clipNext').addEventListener('click',function(){
+  if(curSy && curClipIdx<curSy.clips.length-1){ curClipIdx++; renderClip(); }
+});
+
+// transcript: filled lazily and shown when the user unfolds the frame (which is
+// FOLDED by default). We load once per video from transcripts/<id>.json and show
+// the segments overlapping this clip's window, highlighting the active part.
+function loadTranscript(clip){
+  var body=document.getElementById('transBody');
+  clearTrans();
+  if(clip.text){
+    body.textContent=clip.text;   // matched-snippet fallback (no fetch needed)
+  } else if(transCache[clip.id]){
+    renderTransSegments(transCache[clip.id], clip);
+  } else {
+    body.textContent='Loading transcript…';
+    fetch('transcripts/'+clip.id+'.json')
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .then(function(t){ transCache[clip.id]=t; renderTransSegments(t, clip); })
+      .catch(function(){ body.textContent='Transcript unavailable for this video.'; });
+  }
+}
+// keep the frame folded unless the user explicitly opens it
+function clearTrans(){
+  var body=document.getElementById('transBody');
+  var frame=document.getElementById('transFrame');
+  body.style.display='none';
+  document.getElementById('transCaret').textContent='▸';
+  frame.classList.remove('hidden');
+}
+
+function renderTransSegments(trans, clip){
+  var body=document.getElementById('transBody');
+  var segs=trans.segments||[];
+  // slice to the clip window +/- a couple seconds of context
+  var s=(clip.start||0)-3, e=(clip.end||0)+3;
+  var out=segs.filter(function(g){ return g.e>=s && g.s<=e; });
+  if(!out.length){ out=segs.slice(0,8); }
+  // mark segments inside [start,end] as the active part
+  body.innerHTML=out.map(function(g){
+    var active=g.s>= (clip.start||0) && g.e<= (clip.end||0);
+    return '<div class="'+(active?'cur':'')+'">['+fmt(g.s)+'–'+fmt(g.e)+'] '+esc(g.text)+'</div>';
+  }).join('');
+}
+
+function fmt(sec){
+  var m=Math.floor(sec/60), s=Math.floor(sec%60);
+  return m+':'+(s<10?'0':'')+s;
+}
+
+// transcript frame fold + resize
+document.getElementById('transToggle').addEventListener('click',function(){
+  var body=document.getElementById('transBody');
+  var frame=document.getElementById('transFrame');
+  var open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  document.getElementById('transCaret').textContent=open?'▸':'▾';
+});
+(function(){
+  var bar=document.getElementById('transResize');
+  if(!bar) return;
+  var dragging=false, startY=0, startH=0;
+  bar.addEventListener('pointerdown',function(e){
+    dragging=true; startY=e.clientY;
+    startH=document.getElementById('transBody').offsetHeight;
+    bar.setPointerCapture(e.pointerId);
+  });
+  bar.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    var h=startH-(e.clientY-startY);   // drag up = taller
+    h=Math.max(60, Math.min(window.innerHeight*0.7, h));
+    document.getElementById('transBody').style.maxHeight=h+'px';
+  });
+  bar.addEventListener('pointerup',function(){ dragging=false; });
+  // reset to default height on rotate/resize (mobile)
+  window.addEventListener('resize',function(){ dragging=false; });
+})();
 
 function showQR(seed){
   var base=location.origin+location.pathname;
@@ -466,8 +591,14 @@ function demo(){
     .then(function(data){
       var vids=data.videos||{};
       _symptoms=data.symptoms.map(function(sy,i){
-        var v=vids[sy.video];
-        return {name:sy.name, video:v?{id:v.id,start:sy.start,end:sy.end}:null, num:i+1};
+        // each symptom has an ordered clip list (gallery). Resolve every clip's
+        // shorthand video key to its full {id,title}, and drop zero-signal ones.
+        var clips=(sy.clips||[]).map(function(c){
+          var v=vids[c.video]; if(!v) return null;
+          return {id:v.id, title:c.title||v.title, start:c.start, end:c.end,
+                  text:c.text||''};
+        }).filter(Boolean);
+        return {name:sy.name, clips: clips, num:i+1};
       });
       route();
     })
