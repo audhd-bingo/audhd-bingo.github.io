@@ -103,7 +103,8 @@
         </div>
         <div id="descBox" class="descbox">
           <div class="descbar">
-            <button id="listenBtn" class="ghost" style="padding:6px 10px;font-size:.82rem">🔊 Hear this symptom</button>
+            <button id="listenBtn" class="ghost" style="padding:6px 10px;font-size:.82rem">▶️ Hear this symptom</button>
+            <button id="listenStop" class="ghost" style="padding:6px 10px;font-size:.82rem;display:none">⏹</button>
             <span id="listenStatus" class="status"></span>
           </div>
           <p id="descText" class="desctext"></p>
@@ -151,7 +152,8 @@
 
     <div id="pdescBox" class="descbox">
       <div class="descbar">
-        <button id="plistenBtn" class="ghost" style="padding:6px 10px;font-size:.82rem">🔊 Hear</button>
+        <button id="plistenBtn" class="ghost" style="padding:6px 10px;font-size:.82rem">▶️ Hear</button>
+        <button id="plistenStop" class="ghost" style="padding:6px 10px;font-size:.82rem;display:none">⏹</button>
         <span id="plistenStatus" class="status"></span>
       </div>
       <p id="pdescText" class="desctext"></p>
@@ -416,18 +418,68 @@ document.getElementById('transToggle').addEventListener('click',function(){
 
 // ---------- description + read-more sources ----------
 // browser TTS reads the symptom description aloud (no audio files, no API)
-var playerSy=null, curSpeak=null;
-function speakNow(text, statusEl){
-  if(!('speechSynthesis' in window)){ if(statusEl)statusEl.textContent='TTS not supported here'; return; }
-  speechSynthesis.cancel();
-  var u=new SpeechSynthesisUtterance(text);
-  u.rate=1.0; u.pitch=1.0; u.lang='en-GB';
-  if(statusEl) statusEl.textContent='…';
-  u.onend=function(){ if(statusEl) statusEl.textContent=''; };
-  u.onerror=function(){ if(statusEl) statusEl.textContent='TTS unavailable'; };
-  speechSynthesis.speak(u);
+var playerSy=null;
+var tts={u:null, paused:false, activePrefix:null};
+function ttsSupported(){ return 'speechSynthesis' in window; }
+
+// play / pause / resume on the main button; stop button ends and hides.
+// One utterance at a time across both views (host + player share the browser).
+function wireTTS(prefix, getText, getStatus){
+  var btn=document.getElementById(prefix+'listenBtn');
+  var stop=document.getElementById(prefix+'listenStop');
+  btn.addEventListener('click',function(){
+    if(!ttsSupported()){ getStatus().textContent='TTS not supported here'; return; }
+    var text=getText();
+    if(!text) return;
+    if(tts.u && tts.activePrefix===prefix && speechSynthesis.speaking){
+      // toggle pause/resume
+      if(speechSynthesis.paused){
+        speechSynthesis.resume();
+        btn.textContent='⏸ '+btn.getAttribute('data-playlabel');
+      }else{
+        speechSynthesis.pause();
+        btn.textContent='▶️ '+btn.getAttribute('data-playlabel');
+      }
+      getStatus().textContent='';
+      return;
+    }
+    // start fresh
+    speechSynthesis.cancel();
+    ttsPauseOther(prefix);
+    var u=new SpeechSynthesisUtterance(text);
+    u.rate=1.0; u.pitch=1.0; u.lang='en-GB';
+    tts.u=u; tts.paused=false; tts.activePrefix=prefix;
+    stop.style.display='inline-block';
+    btn.textContent='⏸ '+btn.getAttribute('data-playlabel');
+    getStatus().textContent='…';
+    u.onend=u.onerror=function(){
+      if(tts.u!==u) return;
+      tts.u=null; tts.activePrefix=null;
+      stop.style.display='none';
+      btn.textContent='▶️ '+btn.getAttribute('data-playlabel');
+      getStatus().textContent='';
+    };
+    speechSynthesis.speak(u);
+  });
+  stop.addEventListener('click',function(){
+    speechSynthesis.cancel();
+    btn.textContent='▶️ '+btn.getAttribute('data-playlabel');
+    tts.u=null; tts.activePrefix=null;
+    stop.style.display='none';
+    getStatus().textContent='';
+  });
 }
-function stopTTS(){ if('speechSynthesis' in window) speechSynthesis.cancel(); }
+function ttsPauseOther(prefix){
+  if(!tts.u || tts.activePrefix===prefix) return;
+  // the other view's button state is stale; simplest: stop it and reset labels
+  var op=tts.activePrefix;
+  speechSynthesis.cancel();
+  var ob=document.getElementById(op+'listenBtn');
+  if(ob) ob.textContent='▶️ '+ob.getAttribute('data-playlabel');
+  var os=document.getElementById(op+'listenStop');
+  if(os) os.style.display='none';
+}
+function stopTTS(){ if(ttsSupported()) speechSynthesis.cancel(); }
 
 function renderDesc(prefix, sy){
   var box=document.getElementById(prefix+'descBox');
@@ -452,12 +504,13 @@ function showDesc(sy, kind){
     if(st) st.textContent='';
   }
 }
-document.getElementById('listenBtn').addEventListener('click',function(){
-  if(curSy && curSy.desc) speakNow(curSy.name+'. '+curSy.desc, document.getElementById('listenStatus'));
-});
-document.getElementById('plistenBtn').addEventListener('click',function(){
-  if(playerSy && playerSy.desc) speakNow(playerSy.name+'. '+playerSy.desc, document.getElementById('plistenStatus'));
-});
+wireTTS('', function(){ return curSy && curSy.desc ? curSy.name+'. '+curSy.desc : ''; },
+        function(){ return document.getElementById('listenStatus'); });
+wireTTS('p', function(){ return playerSy && playerSy.desc ? playerSy.name+'. '+playerSy.desc : ''; },
+        function(){ return document.getElementById('plistenStatus'); });
+// play labels for pause/resume state toggling
+document.getElementById('listenBtn').setAttribute('data-playlabel','Hear this symptom');
+document.getElementById('plistenBtn').setAttribute('data-playlabel','Hear');
 
 function showQR(seed){
   var base=location.origin+location.pathname;
