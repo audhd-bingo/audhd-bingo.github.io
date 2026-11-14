@@ -1,3 +1,4 @@
 validate.py
 __pycache__/
 *.pyc
+.semcache/

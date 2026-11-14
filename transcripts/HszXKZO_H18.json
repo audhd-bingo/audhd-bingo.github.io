@@ -1,0 +1,746 @@
+{
+ "id": "HszXKZO_H18",
+ "title": "Why I Can't Remember Things -- How ADHD Affects Working Memory",
+ "segments": [
+  {
+   "s": 0.0,
+   "e": 2.36,
+   "text": "This episode is sponsored by Wondrium."
+  },
+  {
+   "s": 2.36,
+   "e": 4.78,
+   "text": "Stick around to the end of the video to learn more about it!"
+  },
+  {
+   "s": 4.95,
+   "e": 7.29,
+   "text": "Hello Brains! What’s working memory?"
+  },
+  {
+   "s": 8.28,
+   "e": 9.3,
+   "text": "I forgot."
+  },
+  {
+   "s": 15.47,
+   "e": 19.11,
+   "text": "Working Memory (n) is our ability to hold information"
+  },
+  {
+   "s": 19.11,
+   "e": 21.41,
+   "text": "temporarily in our head while we work with it"
+  },
+  {
+   "s": 21.41,
+   "e": 22.89,
+   "text": "for a short period of time."
+  },
+  {
+   "s": 22.89,
+   "e": 25.57,
+   "text": "In computer terms, it’s kind of like our RAM."
+  },
+  {
+   "s": 25.57,
+   "e": 28.14,
+   "text": "It’s where we store information we’re actively working with --"
+  },
+  {
+   "s": 28.14,
+   "e": 29.62,
+   "text": "either by remembering it,"
+  },
+  {
+   "s": 29.62,
+   "e": 31.38,
+   "text": "often while paying attention to something else,"
+  },
+  {
+   "s": 31.59,
+   "e": 33.1,
+   "text": "or doing something with it."
+  },
+  {
+   "s": 33.1,
+   "e": 34.74,
+   "text": "We use working memory for things like"
+  },
+  {
+   "s": 34.74,
+   "e": 36.4,
+   "text": "remembering a number while we look for a pen"
+  },
+  {
+   "s": 36.4,
+   "e": 37.36,
+   "text": "to write it down,"
+  },
+  {
+   "s": 37.36,
+   "e": 38.55,
+   "text": "doing math in our head"
+  },
+  {
+   "s": 38.55,
+   "e": 40.63,
+   "text": "or remembering what we just read."
+  },
+  {
+   "s": 40.96,
+   "e": 42.83,
+   "text": "Everyone’s working memory has limits."
+  },
+  {
+   "s": 42.83,
+   "e": 44.64,
+   "text": "We all just get a few slots."
+  },
+  {
+   "s": 44.64,
+   "e": 47.18,
+   "text": "And the information in those slots goes away pretty quickly"
+  },
+  {
+   "s": 47.18,
+   "e": 49.12,
+   "text": "if we don’t keep thinking about it."
+  },
+  {
+   "s": 49.12,
+   "e": 50.95,
+   "text": "To make space for new information."
+  },
+  {
+   "s": 50.95,
+   "e": 51.92,
+   "text": "Which is fine."
+  },
+  {
+   "s": 51.92,
+   "e": 53.49,
+   "text": "Most of the information we think about"
+  },
+  {
+   "s": 53.49,
+   "e": 56.58,
+   "text": "in a day we don’t actually need to remember long term,"
+  },
+  {
+   "s": 56.58,
+   "e": 58.01,
+   "text": "and if we do need to remember it,"
+  },
+  {
+   "s": 58.01,
+   "e": 60.23,
+   "text": "we can save it to our hard drive through"
+  },
+  {
+   "s": 60.23,
+   "e": 61.89,
+   "text": "techniques like “studying.”"
+  },
+  {
+   "s": 61.89,
+   "e": 65.43,
+   "text": "While our long term memory (or “hard drive”) is typically just fine,"
+  },
+  {
+   "s": 65.43,
+   "e": 68.45,
+   "text": "Working memory is often impaired in ADHD --"
+  },
+  {
+   "s": 68.45,
+   "e": 70.11,
+   "text": "we essentially get fewer slots --"
+  },
+  {
+   "s": 70.11,
+   "e": 73.41,
+   "text": "especially when it comes to verbal/auditory working memory,"
+  },
+  {
+   "s": 73.41,
+   "e": 74.86,
+   "text": "which includes things like reading or"
+  },
+  {
+   "s": 74.86,
+   "e": 76.71,
+   "text": "remembering what someone said."
+  },
+  {
+   "s": 76.71,
+   "e": 78.62,
+   "text": "This is why we get a lot of comments of"
+  },
+  {
+   "s": 78.62,
+   "e": 80.93,
+   "text": "\"Did anybody else need to rewind this video?\""
+  },
+  {
+   "s": 80.93,
+   "e": 83.8,
+   "text": "Understandably, this can interfere with our ability to"
+  },
+  {
+   "s": 83.8,
+   "e": 86.57,
+   "text": "encode information into long term storage"
+  },
+  {
+   "s": 86.65,
+   "e": 88.18,
+   "text": "So we can remember it later."
+  },
+  {
+   "s": 88.18,
+   "e": 90.68,
+   "text": "It can also interfere with simple everyday tasks"
+  },
+  {
+   "s": 90.68,
+   "e": 93.37,
+   "text": "like answering a question a teacher just asked."
+  },
+  {
+   "s": 93.37,
+   "e": 94.44,
+   "text": "As an example,"
+  },
+  {
+   "s": 94.44,
+   "e": 95.87,
+   "text": "let’s this neurotypical student"
+  },
+  {
+   "s": 95.87,
+   "e": 98.77,
+   "text": "has a working memory capacity that allows her to temporarily"
+  },
+  {
+   "s": 98.77,
+   "e": 100.78,
+   "text": "hold onto 4 pieces of information --"
+  },
+  {
+   "s": 100.78,
+   "e": 104.78,
+   "text": "essentially, 4 slots. And this student with ADHD has 3."
+  },
+  {
+   "s": 104.78,
+   "e": 106.85,
+   "text": "Now imagine the teacher asks a question"
+  },
+  {
+   "s": 106.85,
+   "e": 108.77,
+   "text": "followed by 3 possible answers."
+  },
+  {
+   "s": 108.81,
+   "e": 110.54,
+   "text": "The neurotypical student might be able"
+  },
+  {
+   "s": 110.54,
+   "e": 111.93,
+   "text": "to answer the question no problem."
+  },
+  {
+   "s": 112.29,
+   "e": 113.5,
+   "text": "But by the time the teacher"
+  },
+  {
+   "s": 113.5,
+   "e": 115.25,
+   "text": "got to the third possible answer,"
+  },
+  {
+   "s": 115.25,
+   "e": 118.44,
+   "text": "the ADHD student already forgot the question."
+  },
+  {
+   "s": 118.44,
+   "e": 120.19,
+   "text": "Even if our working memory isn’t impaired,"
+  },
+  {
+   "s": 120.19,
+   "e": 122.06,
+   "text": "our difficulty with attention regulation"
+  },
+  {
+   "s": 122.06,
+   "e": 124.12,
+   "text": "means the information in those slots can get kicked"
+  },
+  {
+   "s": 124.12,
+   "e": 127.97,
+   "text": "out a lot more easily as we start attending to other thoughts."
+  },
+  {
+   "s": 128.19,
+   "e": 130.86,
+   "text": "And even if we have the same working memory capacity"
+  },
+  {
+   "s": 130.86,
+   "e": 132.32,
+   "text": "AND we manage to ignore"
+  },
+  {
+   "s": 132.32,
+   "e": 135.03,
+   "text": "that thought that popped into our head so we can stay focused,"
+  },
+  {
+   "s": 135.03,
+   "e": 137.49,
+   "text": "those with ADHD have to spend more effort"
+  },
+  {
+   "s": 137.49,
+   "e": 139.77,
+   "text": "actively directing their attention and actions"
+  },
+  {
+   "s": 139.77,
+   "e": 141.16,
+   "text": "than their neurotypical peers --"
+  },
+  {
+   "s": 141.16,
+   "e": 142.79,
+   "text": "Which means we’re taking up"
+  },
+  {
+   "s": 142.79,
+   "e": 144.54,
+   "text": "working memory slots for things like"
+  },
+  {
+   "s": 144.54,
+   "e": 146.02,
+   "text": "remembering to sit still."
+  },
+  {
+   "s": 146.03,
+   "e": 147.69,
+   "text": "None of these situations are because"
+  },
+  {
+   "s": 147.69,
+   "e": 149.65,
+   "text": "we aren't smart, or aren't trying hard enough."
+  },
+  {
+   "s": 149.65,
+   "e": 150.89,
+   "text": "It's about working memory."
+  },
+  {
+   "s": 150.89,
+   "e": 153.02,
+   "text": "This is why lists and planners are often"
+  },
+  {
+   "s": 153.02,
+   "e": 155.08,
+   "text": "recommended for those with ADHD --"
+  },
+  {
+   "s": 155.08,
+   "e": 157.02,
+   "text": "not because it’s easy for us to use them,"
+  },
+  {
+   "s": 157.02,
+   "e": 159.42,
+   "text": "but so we can save our working memory slots"
+  },
+  {
+   "s": 159.42,
+   "e": 161.37,
+   "text": "for information we’re actively working with"
+  },
+  {
+   "s": 161.37,
+   "e": 162.58,
+   "text": "rather than taking them up with things"
+  },
+  {
+   "s": 162.58,
+   "e": 164.23,
+   "text": "we just don’t want to forget."
+  },
+  {
+   "s": 164.23,
+   "e": 166.51,
+   "text": "It's also part of why we need to turn off notifications"
+  },
+  {
+   "s": 166.51,
+   "e": 168.03,
+   "text": "and put away distractions."
+  },
+  {
+   "s": 168.03,
+   "e": 170.09,
+   "text": "So stuff doesn't take up working memory"
+  },
+  {
+   "s": 170.09,
+   "e": 171.24,
+   "text": "that doesn't need to."
+  },
+  {
+   "s": 171.24,
+   "e": 172.13,
+   "text": "So if you’re a teacher,"
+  },
+  {
+   "s": 172.13,
+   "e": 173.87,
+   "text": "you probably have students in your class who struggle"
+  },
+  {
+   "s": 173.87,
+   "e": 175.04,
+   "text": "with working memory,"
+  },
+  {
+   "s": 175.04,
+   "e": 177.48,
+   "text": "so it can really help to write questions on the board."
+  },
+  {
+   "s": 177.48,
+   "e": 179.93,
+   "text": "If your friend writes something down while you’re talking,"
+  },
+  {
+   "s": 179.93,
+   "e": 182.08,
+   "text": "that might not be them not paying atteion,"
+  },
+  {
+   "s": 182.08,
+   "e": 183.8,
+   "text": "that might be them clearing their working memory"
+  },
+  {
+   "s": 183.8,
+   "e": 185.18,
+   "text": "so they can focus on what you’re saying."
+  },
+  {
+   "s": 185.18,
+   "e": 188.49,
+   "text": "And now that I understand my working memory is quite impaired,"
+  },
+  {
+   "s": 188.49,
+   "e": 190.12,
+   "text": "I often ask a friend things like"
+  },
+  {
+   "s": 190.12,
+   "e": 191.05,
+   "text": "my working memory sucks,"
+  },
+  {
+   "s": 191.05,
+   "e": 193.37,
+   "text": "can you read me the card number while I type it in?”"
+  },
+  {
+   "s": 193.37,
+   "e": 195.75,
+   "text": "Working memory is just one of the executive functions"
+  },
+  {
+   "s": 195.75,
+   "e": 197.6,
+   "text": "that can be impaired in ADHD --"
+  },
+  {
+   "s": 197.6,
+   "e": 199.25,
+   "text": "for more, check out this playlist!"
+  },
+  {
+   "s": 199.25,
+   "e": 200.74,
+   "text": "So remember when I spoke about"
+  },
+  {
+   "s": 200.74,
+   "e": 202.07,
+   "text": "'The Great courses plus'"
+  },
+  {
+   "s": 202.07,
+   "e": 203.86,
+   "text": "And it was really great? Well.."
+  },
+  {
+   "s": 203.86,
+   "e": 205.11,
+   "text": "It got even better."
+  },
+  {
+   "s": 205.11,
+   "e": 206.4,
+   "text": "It's now called 'Wondrium'"
+  },
+  {
+   "s": 206.4,
+   "e": 209.32,
+   "text": "and it's basically designed for curious brains like ours."
+  },
+  {
+   "s": 209.32,
+   "e": 212.16,
+   "text": "From How to's, Tutorials, Documentaries and so much more"
+  },
+  {
+   "s": 212.16,
+   "e": 213.92,
+   "text": "Wondrium is where you can find the answer to"
+  },
+  {
+   "s": 213.92,
+   "e": 216.45,
+   "text": "pretty much everything you've ever wondered about."
+  },
+  {
+   "s": 216.45,
+   "e": 218.12,
+   "text": "It's a subscription based streaming service"
+  },
+  {
+   "s": 218.12,
+   "e": 219.7,
+   "text": "and they're constantly adding new stuff."
+  },
+  {
+   "s": 219.7,
+   "e": 222.2,
+   "text": "I love their content because it's presented by experts,"
+  },
+  {
+   "s": 222.2,
+   "e": 224.31,
+   "text": "thoroughly researched (which you know I care about),"
+  },
+  {
+   "s": 224.31,
+   "e": 226.99,
+   "text": "and carefully curated so I know the info is good."
+  },
+  {
+   "s": 226.99,
+   "e": 229.56,
+   "text": "And their new look makes it even easier to find"
+  },
+  {
+   "s": 229.56,
+   "e": 230.5,
+   "text": "what I'm looking for."
+  },
+  {
+   "s": 230.5,
+   "e": 231.99,
+   "text": "Whether that's courses that I found on the"
+  },
+  {
+   "s": 231.99,
+   "e": 232.86,
+   "text": "great courses plus,"
+  },
+  {
+   "s": 232.86,
+   "e": 233.97,
+   "text": "or something new."
+  },
+  {
+   "s": 233.97,
+   "e": 237.0,
+   "text": "I've been taking this course on learning piano and it's been great because,"
+  },
+  {
+   "s": 237.0,
+   "e": 240.74,
+   "text": "I moved recently, life got busy and I had to stop for a while."
+  },
+  {
+   "s": 240.74,
+   "e": 242.87,
+   "text": "But now that I'm settled I can pick right back up"
+  },
+  {
+   "s": 242.87,
+   "e": 244.78,
+   "text": "where I left off, jump right back into class"
+  },
+  {
+   "s": 244.78,
+   "e": 246.42,
+   "text": "and still have the same professor."
+  },
+  {
+   "s": 246.42,
+   "e": 248.32,
+   "text": "Which is incredibly ADHD friendly."
+  },
+  {
+   "s": 248.32,
+   "e": 249.99,
+   "text": "I can even reprint the textbook."
+  },
+  {
+   "s": 249.99,
+   "e": 253.14,
+   "text": "Which is good since I definitely don't remember where I put it."
+  },
+  {
+   "s": 253.14,
+   "e": 255.69,
+   "text": "I love the flexibility of being able to take full courses"
+  },
+  {
+   "s": 255.69,
+   "e": 258.58,
+   "text": "as well as just learn whatever I'm curious about that day."
+  },
+  {
+   "s": 258.58,
+   "e": 261.21,
+   "text": "Recently I watched a lesson on the science of cooking"
+  },
+  {
+   "s": 261.21,
+   "e": 264.57,
+   "text": "because I've never really understood how I turn food into food,"
+  },
+  {
+   "s": 264.57,
+   "e": 267.24,
+   "text": "and I learnt why sauces thicken as they cook."
+  },
+  {
+   "s": 267.25,
+   "e": 269.32,
+   "text": "I always kind of assumed it's because the heat"
+  },
+  {
+   "s": 269.32,
+   "e": 271.37,
+   "text": "is making the water in the sauce evaporate,"
+  },
+  {
+   "s": 271.37,
+   "e": 273.1,
+   "text": "but it's actually because there are compact"
+  },
+  {
+   "s": 273.1,
+   "e": 274.95,
+   "text": "starch granules in the flower,"
+  },
+  {
+   "s": 274.95,
+   "e": 278.06,
+   "text": "and heat and water makes those starch granules expand."
+  },
+  {
+   "s": 278.06,
+   "e": 280.7,
+   "text": "Kind of like my mind after watching that video."
+  },
+  {
+   "s": 280.7,
+   "e": 282.42,
+   "text": "Wondrium is offering a free trial right now,"
+  },
+  {
+   "s": 282.42,
+   "e": 284.45,
+   "text": "and they're regular supporters of the show."
+  },
+  {
+   "s": 284.45,
+   "e": 286.81,
+   "text": "So by supporting them you're also supporting us."
+  },
+  {
+   "s": 286.81,
+   "e": 288.19,
+   "text": "If you'd like to try it out, go to"
+  },
+  {
+   "s": 288.19,
+   "e": 291.81,
+   "text": "wondrium.com/howtoadhd or click on the link"
+  },
+  {
+   "s": 291.81,
+   "e": 294.33,
+   "text": "in the description below to start your free trial today."
+  },
+  {
+   "s": 294.33,
+   "e": 296.33,
+   "text": "And remember: You don't have to learn all the things"
+  },
+  {
+   "s": 296.33,
+   "e": 297.08,
+   "text": "at once."
+  },
+  {
+   "s": 297.08,
+   "e": 298.6,
+   "text": "It'll still be there next week."
+  },
+  {
+   "s": 298.6,
+   "e": 300.0,
+   "text": "Thank you to my Brain advocates and"
+  },
+  {
+   "s": 300.0,
+   "e": 303.23,
+   "text": "all my Patreon Brains for making episodes like this possible."
+  },
+  {
+   "s": 303.23,
+   "e": 304.68,
+   "text": "If there's an ADHD related term"
+  },
+  {
+   "s": 304.68,
+   "e": 307.32,
+   "text": "you'd like to see me define, leave it in the comments below."
+  },
+  {
+   "s": 307.32,
+   "e": 310.34,
+   "text": "Like, subscribe, click all the things and I will see you next video."
+  },
+  {
+   "s": 310.34,
+   "e": 311.6,
+   "text": "By Brains!"
+  }
+ ]
+}

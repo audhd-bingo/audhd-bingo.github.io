@@ -27,6 +27,26 @@ VIDEOS = {
     "jM3azhiOy5E": "How to Deal with Rejection Sensitivity",
     "rC3tG3lbrNM": "How to (Actually) Get Out the Door on Time",
     "wk_iX7pXGwk": "Time Blindness - An ADHD or Executive Dysfunction Trait",
+    # ---- focused per-symptom pool (adds discriminating signal for semantic pass) ----
+    "HszXKZO_H18": "Why I Can't Remember Things -- How ADHD Affects Working Memory",
+    "EA5g83TsVJw": "The Trouble with Transitions: Task Switching and ADHD",
+    "F0uEDEwJGx8": "ADHD & Interrupting - Episode 86 - ADHD Power Tools",
+    "xR0Iy-1xOqo": "Face Value (Expressions & Flat Affect) Autism & Relationships",
+    "QZBe0rtiInc": "ADHD Stimming | Why It Happens and How to Manage It",
+    "ed0izgeDHYA": "The real reason your ADHD brain forgets to eat (it's not laziness)",
+    "Xp805f-j1VI": "Why People with ADHD Procrastinate (And 4 Brain-Based Ways to Get Started)",
+    "rSLPWgyV9Ls": "Echolalia & Autism - Understanding Why Autistic People Repeat Words",
+    "bSW8wf4f2hE": "Anxiety and Sensory Processing Disorder - Which Comes First?",
+    "8hnn0weNtjE": "How to Make Phone Calls When You Have Anxiety",
+    "agdVnnS_Qb4": "The ADHD Hobby Trap: Dopamine, Rejection Sensitivity and Losing Interest",
+    "yyziesUYVbs": "Why Autistic Sensory Issues Aren't What You Think",
+    "E68ovEXFQAo": "ADHD Hyperfocus Explained (and how to use it to your ADVANTAGE)",
+    "uunOBIBpi6E": "How to Be Social with Autism (Social skills)",
+    "tipVjtS0NSI": "Why You Forget Why You Entered A Room (The Doorway Effect Explained)",
+    "fMNHs3go788": "Why Can't I Ignore Clothing Tags & Sock Seams? Neurodivergent Sensory",
+    "ikmB7iDXYqY": "Justice Sensitivity Is Draining ADHD & Autistic Lives",
+    "BPKJ1sE3Ss8": "Autism, Humour & Sarcasm - What You Need to Know",
+    "7DaWdaxzA3c": "The Double Empathy Problem - Dr Damian Milton - Autism Explained Online",
 }
 
 # symptom name -> search keywords (phrases; matched case/diacritic-insensitively)
@@ -502,7 +522,8 @@ def _expand_to_sentence(rec, s, e, cap_segs=4):
 SEM_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 WIN_SEGS = 8      # transcript segments per candidate window (~16s of speech)
 WIN_STEP = 4      # overlap between candidate windows
-SEM_THRESHOLD = 0.42
+SEM_DIFF = 0.20   # discriminative score floor: sim-to-this minus sim-to-other-desc baseline
+SEM_STRONG = 0.45 # above this, accept without a keyword anchor (focused-video wording differs)
 SEM_MAX = 3       # extra clips appended per symptom
 SEM_OVERLAP = 8   # seconds; skip windows too close to an existing clip
 
@@ -511,42 +532,79 @@ def _embed(model, texts):
     embs = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
     return np.asarray(embs)
 
-def add_semantic(transcripts, sym, model):
-    desc = (sym.get("desc") or "").strip()
-    if not desc:
-        return
+def _windows(rec):
+    segs = rec["segments"]
+    out = []
+    for i in range(0, max(1, len(segs) - WIN_SEGS + 1), WIN_STEP):
+        out.append((segs[i]["s"], segs[i + WIN_SEGS - 1]["e"],
+                    " ".join(g["text"] for g in segs[i:i+WIN_SEGS])))
+    return out
+
+def _video_emb(transcripts, vid, model, cache_dir):
+    """Cache window (start,end) + embeddings per video on disk; encode once."""
     import numpy as np
-    dvec = _embed(model, [desc])[0]
-    # stamp sem on the existing keyword clips too (uniform sorting key)
+    import os as _os
+    rec = transcripts.get(vid)
+    if not rec or not rec.get("segments"):
+        return None, None
+    key = f"{vid}_{WIN_SEGS}_{WIN_STEP}"
+    npz = _os.path.join(cache_dir, key + ".npz")
+    if _os.path.exists(npz):
+        z = np.load(npz, allow_pickle=True)
+        return list(z["s_e"]), z["em"]
+    wins = _windows(rec)
+    if not wins:
+        return None, None
+    em = _embed(model, [w[2] for w in wins])
+    _os.makedirs(cache_dir, exist_ok=True)
+    np.savez(npz, s_e=np.array([(w[0], w[1]) for w in wins], dtype="float32"), em=em)
+    return [(w[0], w[1]) for w in wins], em
+
+def add_semantic(transcripts, sym, descs, D, model, cache_dir):
+    """Discriminative semantic match: window sim to THIS desc minus its mean
+    sim to the other 39 descs. Focused videos make this separate signal;
+    generic AuDHD talk cancels out. Append at most SEM_MAX after keyword clips."""
+    import numpy as np
+    desc = (sym.get("desc") or "").strip()
+    if not desc or desc not in descs:
+        return
+    self_i = descs.index(desc)
+    dvec = D[self_i]
+    # generic baseline: mean over all OTHER symptom descs
+    mask = np.ones(D.shape[0], bool); mask[self_i] = False
+    base = D[mask].mean(axis=0)
+    # stamp sem on existing keyword clips (uniform sorting key)
     for c in sym.get("clips", []):
-        c["sem"] = round(float(dvec @ _embed(model, [c.get("text","")])[0]), 3)
-    take = list(sym.get("clips", []))  # preserve keyword order
+        t = c.get("text", "")
+        c["sem"] = round(float(dvec @ _embed(model, [t])[0]), 3) if t else 0
+    take = list(sym.get("clips", []))
     used = [(c["start"], c["end"]) for c in take]
+    kws = [norm(k) for k in KEYWORDS.get(sym.get("name","") or "", [])]
     adds = []
     for vid, title in VIDEOS.items():
-        rec = transcripts.get(vid)
-        if not rec or not rec.get("segments"):
+        s_e, em = _video_emb(transcripts, vid, model, cache_dir)
+        if s_e is None:
             continue
-        segs = rec["segments"]
-        wins = []
-        for i in range(0, max(1, len(segs) - WIN_SEGS + 1), WIN_STEP):
-            s = segs[i]["s"]
-            e = segs[i + WIN_SEGS - 1]["e"]
-            wins.append({"s": s, "e": e, "text": " ".join(g["text"] for g in segs[i:i+WIN_SEGS])})
-        if not wins:
-            continue
-        m = _embed(model, [w["text"] for w in wins])
-        sims = m @ dvec
-        for w, sim in zip(wins, sims):
-            if float(sim) < SEM_THRESHOLD:
+        raw = em @ dvec
+        gen = em @ base
+        diff = raw - gen
+        for (s, e), d in zip(s_e, diff):
+            if float(d) < SEM_DIFF:
                 continue
-            s2, e2 = _expand_to_sentence(rec, w["s"], w["e"])
-            # too close to an existing clip OR an already-kept semantic clip?
-            if any(abs(w["s"] - a) < SEM_OVERLAP for a, _ in used + [(x["start"], x["end"]) for x in adds]):
+            s2, e2 = _expand_to_sentence(transcripts[vid], s, e)
+            if any(abs(s2 - a) < SEM_OVERLAP for a, _ in used + [(x["start"], x["end"]) for x in adds]):
                 continue
+            txt = seg_text(transcripts[vid], {"s": s2, "e": e2})
+            # hybrid gate: BERT ranks, but usually require the window to also
+            # mention the symptom's own keyword phrases (no off-topic noise).
+            # A very high discriminative score alone is accepted: focused
+            # videos phrase things differently than the keyword lists.
+            if kws and float(d) < SEM_STRONG:
+                if not any(norm(k) in norm(txt) for k in kws):
+                    continue
             adds.append({"video": "v" + vid[:6], "start": round(s2), "end": round(e2),
-                         "score": 0, "sem": round(float(sim), 3),
-                         "title": title, "text": seg_text(rec, {"s": s2, "e": e2})[:600]})
+                         "score": 0, "sem": round(float(d), 3),
+                         "title": title, "text": txt[:600]})
     adds.sort(key=lambda c: -c["sem"])
     sym["clips"] = take + adds[:SEM_MAX]   # keyword order first, then semantic
 
@@ -567,8 +625,11 @@ def main():
         from sentence_transformers import SentenceTransformer
         model = SentenceTransformer(SEM_MODEL)
         data = load_symptoms()
+        descs = [s.get("desc", "").strip() for s in data["symptoms"]]
+        D = _embed(model, descs)   # 40 x 384, one encode
+        cache_dir = os.path.join(ROOT, ".semcache")
         for sym in data["symptoms"]:
-            add_semantic(transcripts, sym, model)
+            add_semantic(transcripts, sym, descs, D, model, cache_dir)
         json.dump(data, open(SYMPTOMS_JSON, "w"), ensure_ascii=False, indent=2)
         n = sum(len(s["clips"]) for s in data["symptoms"])
         print(f"semantic pass done; {n} total clips across {len(data['symptoms'])} symptoms")
