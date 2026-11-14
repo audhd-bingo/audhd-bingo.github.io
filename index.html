@@ -19,7 +19,7 @@
   h1{font-size:1.9rem;letter-spacing:.5px}
   h1 span{color:var(--acc)}
   .sub{color:var(--dim);font-size:.9rem;margin-top:4px}
-  .board{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,auto);gap:6px;margin-bottom:18px}
+  .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(0,1fr));grid-template-rows:auto;gap:6px;margin-bottom:18px}
   .cell{background:var(--card);border:1px solid #3a3a54;border-radius:8px;min-height:64px;padding:6px;font-size:.72rem;line-height:1.1;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:background .2s}
   .cell.free{background:#2a2547;border-color:var(--acc);font-weight:700;color:#cfc6ff}
   .cell.marked{background:#17382c;border-color:var(--mark);color:#aef0cd}
@@ -271,7 +271,17 @@ function emptyMarks(){
   var m=[]; for(var i=0;i<CELLS;i++) m.push(false); return m;
 }
 
+// responsive card width: fewer columns on narrow screens keeps cells readable
+// and pushes surplus rows below instead of cramming 5 columns into a phone.
+function cardCols(){
+  var w=(document.documentElement&&document.documentElement.clientWidth)||window.innerWidth||640;
+  return w<430?3:(w<700?4:5);
+}
+
 function renderBoard(boardEl, grid, marks, kind){
+  var cols=cardCols();
+  boardEl.style.gridTemplateColumns='repeat('+cols+',minmax(0,1fr))';
+  boardEl.style.gridTemplateRows='auto';
   boardEl.innerHTML='';
   for(var c=0;c<CELLS;c++){
     var cell=document.createElement('div');
@@ -296,6 +306,20 @@ function updateMarks(boardEl, marks){
   for(var i=0;i<cells.length;i++) cells[i].classList.toggle('marked',!!marks[i]);
 }
 
+// re-flow the visible card(s) on rotate/resize, keeping marks
+var reflowTimer=null;
+window.addEventListener('resize',function(){
+  clearTimeout(reflowTimer);
+  reflowTimer=setTimeout(function(){
+    if(!document.getElementById('playerView').classList.contains('hidden')){
+      renderBoard(document.getElementById('board'), playerGrid, playerMarks, 'player');
+    }
+    if(!document.getElementById('hostCardWrap').classList.contains('hidden')){
+      renderBoard(document.getElementById('hostBoard'), hostGrid, hostMarks, 'host');
+    }
+  },150);
+});
+
 document.getElementById('bingoBtn').addEventListener('click',function(){
   if(checkBingo(playerMarks)) alert('BINGO! 🎉 Someone confirm with the host.');
   else alert('No full line yet — keep going!');
@@ -305,11 +329,39 @@ document.getElementById('hostBingoBtn').addEventListener('click',function(){
   else alert('No full line yet — keep going!');
 });
 function checkBingo(marks){
+  var cols=cardCols();
+  var total=CELLS;                 // 25
+  var nrows=Math.ceil(total/cols);
   var lines=0;
-  for(var r=0;r<GRID;r++){ var ok=true; for(var c=0;c<GRID;c++){ if(r*GRID+c===12)continue; if(!marks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
-  for(var c=0;c<GRID;c++){ var ok=true; for(var r=0;r<GRID;r++){ if(r*GRID+c===12)continue; if(!marks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
-  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+i===12)continue; if(!marks[i*GRID+i]){ok=false;} } if(ok)lines++;
-  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+(GRID-1-i)===12)continue; if(!marks[i*GRID+(GRID-1-i)]){ok=false;} } if(ok)lines++;
+  // full-width rows
+  for(var r=0;r<nrows;r++){
+    var ok=true, cnt=0;
+    for(var c=0;c<cols;c++){
+      var i=r*cols+c;
+      if(i>=total) break;          // partial last row can't win
+      cnt++;
+      if(i===12) continue;         // FREE always counts
+      if(!marks[i]){ok=false;break;}
+    }
+    if(ok && cnt===cols) lines++;
+  }
+  // full columns
+  for(var c=0;c<cols;c++){
+    var ok=true, cnt=0;
+    for(var r=0;r<nrows;r++){
+      var i=r*cols+c;
+      if(i>=total) break;
+      cnt++;
+      if(i===12) continue;
+      if(!marks[i]){ok=false;break;}
+    }
+    if(ok && cnt>0) lines++;
+  }
+  // diagonals only make sense on the classic 5x5
+  if(cols===5){
+    var ok=true; for(var i=0;i<total;i+=6){ if(i===12)continue; if(!marks[i])ok=false; } if(ok)lines++;
+    var ok=true; for(var i=4;i<total-1;i+=4){ if(i===12)continue; if(!marks[i])ok=false; } if(ok)lines++;
+  }
   return lines>=1;
 }
 
@@ -388,6 +440,20 @@ function demo(){
   console.assert(gA[12]===-1 && gB[12]===-1,'center FREE on both');
   var uniq={}; for(var i=0;i<gA.length;i++) if(gA[i]!==-1) uniq[gA[i]]=1;
   console.assert(Object.keys(uniq).length===24,'24 distinct symptoms per card, no dupes');
+  // responsive columns + bingo lines
+  var cols=cardCols();
+  console.assert(cols===3||cols===4||cols===5,'card columns always 3..5, got '+cols);
+  // a full row wins, a partial row does not
+  var marks=[]; for(var i=0;i<CELLS;i++) marks.push(false);
+  for(var c=0;c<cols;c++) marks[c]=true;   // row 0 all marked
+  console.assert(checkBingo(marks),'complete row => BINGO');
+  marks[cols-1]=false;                      // row now partial
+  var full=cols>1?checkBingo(marks):true;
+  console.assert(!full,'partial row (missing last cell) => no BINGO');
+  // column win
+  var marks2=[]; for(var i=0;i<CELLS;i++) marks2.push(false);
+  for(var r=0;r<Math.ceil(CELLS/cols);r++){ var idx=r*cols; if(idx<CELLS) marks2[idx]=true; }
+  console.assert(checkBingo(marks2),'complete column => BINGO');
   console.log('DEMO OK');
 }
 
