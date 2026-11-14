@@ -337,8 +337,7 @@ def find_clip_windows(rec, keywords, dur_guess=30):
     kws = [norm(k) for k in keywords if k]
     if not kws:
         return []
-    hits = []
-    for sg in segs:
+    def seg_score(sg):
         t = norm(sg["text"])
         sc = 0
         for k in kws:
@@ -351,12 +350,15 @@ def find_clip_windows(rec, keywords, dur_guess=30):
                     sc += 2
                 else:
                     sc += 0  # generic single word: no score, may still reorder
-                # phrase closeness: multiple distinct phrases -> higher
+        return sc
+    hits = []
+    for sg in segs:
+        sc = seg_score(sg)
         if sc:
             hits.append((sg["s"], sg["e"], sc))
     if not hits:
         return []
-    # cluster into windows: consecutive segments (within gap) -> one clip
+    # cluster into seed windows: consecutive scored segments (within gap) -> one clip
     wins = []
     for s, e, sc in hits:
         if wins and s - wins[-1]["e"] < 2.0:
@@ -364,16 +366,34 @@ def find_clip_windows(rec, keywords, dur_guess=30):
             wins[-1]["score"] = max(wins[-1]["score"], sc)
         else:
             wins.append({"s": s, "e": e, "score": sc})
-    # expand each window a bit for context, cap length
+    # extend each seed: keep rolling forward while the topic is still being
+    # discussed. A stretch of N keyword-free segments = subject moved on; cap
+    # the clip so we never swallow half the video.
+    TOPIC_RUN = 8    # consecutive keyword-free segments that end the clip
+    MAX_CLIP = 90    # hard ceiling (seconds)
+    LEAD_IN = 4      # seconds of context before the first hit
     expanded = []
     for w in wins:
-        segs_in = [sg for sg in segs if sg["s"] >= w["s"] - 3 and sg["e"] <= w["e"] + 3]
-        if segs_in:
-            w["s"] = max(0, segs_in[0]["s"])
-            w["e"] = segs_in[-1]["e"]
-        if w["e"] - w["s"] > 45:
-            w["e"] = w["s"] + 45
-        expanded.append(w)
+        s0 = max(0, w["s"] - LEAD_IN)
+        e0 = w["e"]
+        free_run = 0
+        # find segment after the seed's end and keep appending it until the
+        # keywords vanish for TOPIC_RUN segments straight.
+        for sg in segs:
+            if sg["s"] < e0:
+                continue
+            if seg_score(sg) == 0:
+                free_run += 1
+            else:
+                free_run = 0
+            if free_run > TOPIC_RUN:
+                break
+            e0 = max(e0, sg["e"])
+            if e0 - s0 > MAX_CLIP:
+                e0 = s0 + MAX_CLIP
+                break
+        # note: seg_score consumes the *current* segment; a keyword segment resets the run
+        expanded.append({"s": s0, "e": e0, "score": w["score"]})
     # dedupe overlapping windows, keep best
     expanded.sort(key=lambda w: -w["score"])
     out = []

@@ -44,6 +44,12 @@
   .trans-body .cur{color:var(--mark);font-weight:600}
   .trans-resize{height:8px;cursor:ns-resize;background:#2a2a3e}
   .trans-resize:hover{background:var(--acc)}
+  .descbox{margin-top:10px;padding:0 12px 10px}
+  .descbar{display:flex;align-items:center;gap:10px;margin:8px 0 4px}
+  .desctext{color:#cfcce2;font-size:.9rem;line-height:1.5;margin:4px 0 6px}
+  .descsrcs{display:flex;flex-wrap:wrap;gap:6px}
+  .descsrcs a{color:#9fb6ff;font-size:.78rem;background:#23233c;border:1px solid #3a3a54;border-radius:20px;padding:4px 10px;text-decoration:none}
+  .descsrcs a:hover{border-color:var(--acc)}
   #callLog{max-height:160px;overflow-y:auto;margin-top:10px;font-size:.85rem;color:var(--dim)}
   #callLog div{padding:3px 0;border-bottom:1px solid #383a56}
   #callLog .active{color:var(--mark);font-weight:700}
@@ -93,6 +99,14 @@
           <div id="transBody" class="trans-body" style="max-height:180px"></div>
           <div id="transResize" class="trans-resize"></div>
         </div>
+        <div id="descBox" class="descbox">
+          <div class="descbar">
+            <button id="listenBtn" class="ghost" style="padding:6px 10px;font-size:.82rem">🔊 Hear this symptom</button>
+            <span id="listenStatus" class="status"></span>
+          </div>
+          <p id="descText" class="desctext"></p>
+          <div id="descSrcs" class="descsrcs"></div>
+        </div>
       </div>
 
       <div class="status" id="hostStatus"></div>
@@ -132,6 +146,15 @@
     </header>
 
     <div id="board" class="board" role="grid"></div>
+
+    <div id="pdescBox" class="descbox">
+      <div class="descbar">
+        <button id="plistenBtn" class="ghost" style="padding:6px 10px;font-size:.82rem">🔊 Hear</button>
+        <span id="plistenStatus" class="status"></span>
+      </div>
+      <p id="pdescText" class="desctext"></p>
+      <div id="pdescSrcs" class="descsrcs"></div>
+    </div>
 
     <div class="tools">
       <button id="bingoBtn" class="ghost">🎉 BINGO!</button>
@@ -249,6 +272,7 @@ function draw(){
   var sy=_symptoms[si];
   cur.textContent=callIndex+'. '+sy.name;
   showVideo(sy);
+  showDesc(sy,'host');
   // prepend to log, mark active
   var log=document.getElementById('callLog');
   var row=document.createElement('div');
@@ -257,7 +281,7 @@ function draw(){
   document.getElementById('hostStatus').textContent=(callOrder.length-callIndex)+' symptoms left to call.';
 }
 
-var curSy=null, curClipIdx=0, transCache={}, DATA_VERSION='3';
+var curSy=null, curClipIdx=0, transCache={}, DATA_VERSION='4';
 
 function showVideo(sy){
   curSy=sy;
@@ -369,6 +393,51 @@ document.getElementById('transToggle').addEventListener('click',function(){
   window.addEventListener('resize',function(){ dragging=false; });
 })();
 
+// ---------- description + read-more sources ----------
+// browser TTS reads the symptom description aloud (no audio files, no API)
+var playerSy=null, curSpeak=null;
+function speakNow(text, statusEl){
+  if(!('speechSynthesis' in window)){ if(statusEl)statusEl.textContent='TTS not supported here'; return; }
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.rate=1.0; u.pitch=1.0; u.lang='en-GB';
+  if(statusEl) statusEl.textContent='…';
+  u.onend=function(){ if(statusEl) statusEl.textContent=''; };
+  u.onerror=function(){ if(statusEl) statusEl.textContent='TTS unavailable'; };
+  speechSynthesis.speak(u);
+}
+function stopTTS(){ if('speechSynthesis' in window) speechSynthesis.cancel(); }
+
+function renderDesc(prefix, sy){
+  var box=document.getElementById(prefix+'descBox');
+  if(!sy || !sy.desc){ box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  document.getElementById(prefix+'descText').textContent=sy.desc;
+  var srcs=document.getElementById(prefix+'descSrcs');
+  srcs.innerHTML='';
+  (sy.sources||[]).forEach(function(s){
+    if(!s || !s.u) return;
+    var a=document.createElement('a');
+    a.href=s.u; a.target='_blank'; a.rel='noopener noreferrer';
+    a.textContent='📄 '+ (s.title||'Read more');
+    srcs.appendChild(a);
+  });
+}
+function showDesc(sy, kind){
+  if(kind==='player') playerSy=sy; else curSy=sy;
+  renderDesc(kind==='player'?'p':'', sy);
+  if(sy && sy.desc){
+    var st=document.getElementById((kind==='player'?'p':'')+'listenStatus');
+    if(st) st.textContent='';
+  }
+}
+document.getElementById('listenBtn').addEventListener('click',function(){
+  if(curSy && curSy.desc) speakNow(curSy.name+'. '+curSy.desc, document.getElementById('listenStatus'));
+});
+document.getElementById('plistenBtn').addEventListener('click',function(){
+  if(playerSy && playerSy.desc) speakNow(playerSy.name+'. '+playerSy.desc, document.getElementById('plistenStatus'));
+});
+
 function showQR(seed){
   var base=location.origin+location.pathname;
   var url=base+'?s='+encodeURIComponent(seed);   // players carry no slot in the QR
@@ -425,6 +494,11 @@ function toggleMark(grid, marks, c){
   if(grid[c]===-1){ marks[c]=true; }
   else { marks[c]=!marks[c]; }
   updateMarks(document.getElementById(grid===hostGrid?'hostBoard':'board'), marks);
+  // player: show the tapped symptom's description + sources under the board
+  if(grid===playerGrid){
+    var si=playerGrid[c];
+    if(si>=0 && _symptoms[si]) showDesc(_symptoms[si],'player');
+  }
 }
 function updateMarks(boardEl, marks){
   var cells=boardEl.querySelectorAll('.cell');
@@ -598,7 +672,8 @@ function demo(){
           return {id:v.id, title:c.title||v.title, start:c.start, end:c.end,
                   text:c.text||''};
         }).filter(Boolean);
-        return {name:sy.name, clips: clips, num:i+1};
+        return {name:sy.name, clips: clips, num:i+1,
+                desc:sy.desc||'', sources:sy.sources||[]};
       });
       route();
     })
