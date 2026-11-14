@@ -229,9 +229,11 @@ KEYWORDS = {
         "crash when i get home"
     ],
     "Music strictly one song on repeat": [
-        "on repeat",
         "same song",
-        "one song"
+        "one song",
+        "listen to the same",
+        "the same song",
+        "song on repeat"
     ],
     "Loves a good spreadsheet to organise": [
         "spreadsheet",
@@ -369,7 +371,7 @@ def find_clip_windows(rec, keywords, dur_guess=30):
     # extend each seed: keep rolling forward while the topic is still being
     # discussed. A stretch of N keyword-free segments = subject moved on; cap
     # the clip so we never swallow half the video.
-    TOPIC_RUN = 8    # consecutive keyword-free segments that end the clip
+    TOPIC_RUN = 4    # consecutive keyword-free segments (~8s of unrelated speech) end the clip
     MAX_CLIP = 90    # hard ceiling (seconds)
     LEAD_IN = 4      # seconds of context before the first hit
     expanded = []
