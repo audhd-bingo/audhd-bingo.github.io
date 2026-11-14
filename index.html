@@ -74,8 +74,21 @@
       <div class="tools" style="margin:12px 0 0">
         <button id="drawBtn">🎲 Draw next symptom</button>
         <button id="hostNewBtn" class="ghost">New game</button>
+        <button id="hostPlayBtn" class="ghost">🃏 I'm playing too</button>
       </div>
       <div id="callLog"></div>
+    </div>
+
+    <!-- host's own card, shown when they toggle "I'm playing too" -->
+    <div id="hostCardWrap" class="hidden" style="margin-top:14px">
+      <div class="callout">
+        <h2>Your card (host view)</h2>
+        <div id="hostBoard" class="board" role="grid"></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button id="hostBingoBtn" class="ghost">🎉 BINGO?</button>
+          <span class="status">Tap a called symptom to mark it.</span>
+        </div>
+      </div>
     </div>
 
     <div class="share">
@@ -192,6 +205,13 @@ function hostStart(seed){
   document.getElementById('hostStatus').textContent='';
   document.getElementById('player').innerHTML='';
   showQR(seed);
+  // host's own card (deterministic host slot; built lazily on toggle)
+  hostGrid=buildCard(seed, 'host');
+  hostMarks=emptyMarks();
+  if(hostGrid[12]===-1) hostMarks[12]=true;
+  hostPlaying=false;
+  document.getElementById('hostCardWrap').classList.add('hidden');
+  document.getElementById('hostPlayBtn').textContent="🃏 I'm playing too";
 }
 
 document.getElementById('drawBtn').addEventListener('click',function(){
@@ -234,55 +254,61 @@ function showQR(seed){
   }catch(e){ document.getElementById('qr').innerHTML='<p class="status">Scan offline unavailable — copy the link below.</p>'; }
 }
 
-// ---------- PLAYER ----------
+// ---------- PLAYER / HOST-CARD (same card machinery) ----------
 var playerGrid=[], playerMarks=[];
+var hostGrid=[], hostMarks=[], hostPlaying=false;
 function playerStart(seed, slot){
   document.getElementById('gameSeed').textContent='#'+seed;
   document.getElementById('playerId').textContent=slot;
   playerGrid=buildCard(seed, slot);
-  playerMarks=[];
-  for(var i=0;i<CELLS;i++) playerMarks.push(false);
-  // free centre
+  playerMarks=emptyMarks();
   if(playerGrid[12]===-1) playerMarks[12]=true;
-  renderBoard();
+  renderBoard(document.getElementById('board'), playerGrid, playerMarks, 'player');
 }
 
-function renderBoard(){
-  var board=document.getElementById('board');
-  board.innerHTML='';
+function emptyMarks(){
+  var m=[]; for(var i=0;i<CELLS;i++) m.push(false); return m;
+}
+
+function renderBoard(boardEl, grid, marks, kind){
+  boardEl.innerHTML='';
   for(var c=0;c<CELLS;c++){
     var cell=document.createElement('div');
-    cell.className='cell'+(playerGrid[c]===-1?' free':'');
-    if(playerGrid[c]===-1){ cell.textContent='FREE'; }
+    cell.className='cell'+(grid[c]===-1?' free':'');
+    if(grid[c]===-1){ cell.textContent='FREE'; }
     else{
-      var sy=_symptoms[playerGrid[c]];
+      var sy=_symptoms[grid[c]];
       cell.innerHTML=esc(sy.name)+'<span class="num">#'+sy.num+'</span>';
     }
-    (function(ci){ cell.addEventListener('click',function(){ toggleMark(ci); }); })(c);
-    board.appendChild(cell);
+    (function(ci){ cell.addEventListener('click',function(){ toggleMark(grid,marks,ci); }); })(c);
+    boardEl.appendChild(cell);
   }
-  updateMarks();
+  updateMarks(boardEl, marks);
 }
-function toggleMark(c){
-  if(playerGrid[c]===-1){ playerMarks[c]=true; updateMarks(); return; }
-  playerMarks[c]=!playerMarks[c];
-  updateMarks();
+function toggleMark(grid, marks, c){
+  if(grid[c]===-1){ marks[c]=true; }
+  else { marks[c]=!marks[c]; }
+  updateMarks(document.getElementById(grid===hostGrid?'hostBoard':'board'), marks);
 }
-function updateMarks(){
-  var cells=document.querySelectorAll('#board .cell');
-  for(var i=0;i<cells.length;i++) cells[i].classList.toggle('marked',!!playerMarks[i]);
+function updateMarks(boardEl, marks){
+  var cells=boardEl.querySelectorAll('.cell');
+  for(var i=0;i<cells.length;i++) cells[i].classList.toggle('marked',!!marks[i]);
 }
 
 document.getElementById('bingoBtn').addEventListener('click',function(){
-  if(checkBingo()) alert('BINGO! 🎉 Someone confirm with the host.');
+  if(checkBingo(playerMarks)) alert('BINGO! 🎉 Someone confirm with the host.');
   else alert('No full line yet — keep going!');
 });
-function checkBingo(){
+document.getElementById('hostBingoBtn').addEventListener('click',function(){
+  if(checkBingo(hostMarks)) alert('BINGO! 🎉 Shout it out!');
+  else alert('No full line yet — keep going!');
+});
+function checkBingo(marks){
   var lines=0;
-  for(var r=0;r<GRID;r++){ var ok=true; for(var c=0;c<GRID;c++){ if(r*GRID+c===12)continue; if(!playerMarks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
-  for(var c=0;c<GRID;c++){ var ok=true; for(var r=0;r<GRID;r++){ if(r*GRID+c===12)continue; if(!playerMarks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
-  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+i===12)continue; if(!playerMarks[i*GRID+i]){ok=false;} } if(ok)lines++;
-  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+(GRID-1-i)===12)continue; if(!playerMarks[i*GRID+(GRID-1-i)]){ok=false;} } if(ok)lines++;
+  for(var r=0;r<GRID;r++){ var ok=true; for(var c=0;c<GRID;c++){ if(r*GRID+c===12)continue; if(!marks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
+  for(var c=0;c<GRID;c++){ var ok=true; for(var r=0;r<GRID;r++){ if(r*GRID+c===12)continue; if(!marks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
+  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+i===12)continue; if(!marks[i*GRID+i]){ok=false;} } if(ok)lines++;
+  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+(GRID-1-i)===12)continue; if(!marks[i*GRID+(GRID-1-i)]){ok=false;} } if(ok)lines++;
   return lines>=1;
 }
 
@@ -313,6 +339,20 @@ document.getElementById('hostStartBtn').addEventListener('click',function(){
 });
 document.getElementById('hostNewBtn').addEventListener('click',function(){
   document.getElementById('hostStartBtn').click();
+});
+// host plays too: toggle their deterministic host card on/off (marks persist while toggling)
+document.getElementById('hostPlayBtn').addEventListener('click',function(){
+  hostPlaying=!hostPlaying;
+  var wrap=document.getElementById('hostCardWrap');
+  var btn=document.getElementById('hostPlayBtn');
+  if(hostPlaying){
+    renderBoard(document.getElementById('hostBoard'), hostGrid, hostMarks, 'host');
+    wrap.classList.remove('hidden');
+    btn.textContent="🙈 I'm just hosting";
+  }else{
+    wrap.classList.add('hidden');
+    btn.textContent="🃏 I'm playing too";
+  }
 });
 // new card for a player: rotate their slot (new random) but keep the game
 document.getElementById('playerNewBtn').addEventListener('click',function(){
