@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuDHD Bingo — spot the signs, raise awareness</title>
+<meta name="description" content="A party bingo game that raises awareness of AuDHD (autism + ADHD) symptoms. Host draws on the big screen, everyone scans one QR for their own unique card, all from the same seed.">
+<link rel="canonical" href="https://audhd-bingo.github.io/">
+<meta property="og:title" content="AuDHD Bingo">
+<meta property="og:description" content="Spot the AuDHD signs, raise awareness. One QR on the big screen — every phone gets its own card from the same seed.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://audhd-bingo.github.io/">
+<style>
+  :root{--bg:#12121c;--card:#1c1c2a;--ink:#eae8ff;--dim:#9a97bd;--acc:#7c6cf0;--mark:#6ce0a8}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:system-ui,Segoe UI,Roboto,sans-serif;min-height:100vh}
+  .wrap{max-width:640px;margin:0 auto;padding:16px 14px 40px}
+  header{text-align:center;margin-bottom:16px}
+  h1{font-size:1.9rem;letter-spacing:.5px}
+  h1 span{color:var(--acc)}
+  .sub{color:var(--dim);font-size:.9rem;margin-top:4px}
+  .board{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,auto);gap:6px;margin-bottom:18px}
+  .cell{background:var(--card);border:1px solid #3a3a54;border-radius:8px;min-height:64px;padding:6px;font-size:.72rem;line-height:1.1;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:background .2s}
+  .cell.free{background:#2a2547;border-color:var(--acc);font-weight:700;color:#cfc6ff}
+  .cell.marked{background:#17382c;border-color:var(--mark);color:#aef0cd}
+  .cell .num{display:block;font-size:.58rem;color:var(--dim);margin-top:3px}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+  button{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-size:1rem;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.ghost{background:#2a2a3e;color:var(--ink)}
+  .callout{background:#282a44;border:1px solid #4a4a70;border-radius:12px;padding:14px;}
+  .callout h2{font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:6px}
+  .current{font-size:1.15rem;font-weight:600;margin-bottom:8px}
+  .status{font-size:.82rem;color:var(--dim)}
+  #player{width:100%;aspect-ratio:16/9;border-radius:10px;background:#000;margin:10px 0}
+  #player iframe{width:100%;height:100%;border:none;border-radius:10px}
+  #callLog{max-height:160px;overflow-y:auto;margin-top:10px;font-size:.85rem;color:var(--dim)}
+  #callLog div{padding:3px 0;border-bottom:1px solid #383a56}
+  #callLog .active{color:var(--mark);font-weight:700}
+  .share{margin-top:20px;background:var(--card);border:1px solid #3a3a54;border-radius:12px;padding:14px}
+  .share h2{font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:8px}
+  .share-row{display:flex;gap:10px;align-items:center}
+  #shareUrl{flex:1;background:#14141f;border:1px solid #3a3a54;border-radius:8px;color:var(--ink);padding:10px;font-size:.8rem}
+  #qr{background:#fff;padding:8px;border-radius:8px;width:160px;height:160px;margin:12px auto 0}
+  .lander{text-align:center;padding:30px 10px}
+  .lander button{margin-top:16px;font-size:1.1rem}
+  .footer{margin-top:28px;color:var(--dim);font-size:.75rem;text-align:center;line-height:1.5}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Landing: choose role -->
+  <div id="lander" class="lander hidden">
+    <h1>Au<span>DHD</span> Bingo</h1>
+    <p class="sub">Spot the signs. Raise awareness.</p>
+    <button id="hostStartBtn" style="display:block;margin:24px auto 8px">🖥️ Start a party game (big screen)</button>
+    <p class="status">Host on the projector, everyone scans the QR for their own card.</p>
+  </div>
+
+  <!-- Host / server view: no bingo card -->
+  <div id="hostView" class="hidden">
+    <header>
+      <h1>Au<span>DHD</span> Bingo — <span id="hostSeed"></span></h1>
+      <p class="sub">Caller/host controls. No card here — the players' cards are unique, this call order is shared.</p>
+    </header>
+
+    <div class="callout">
+      <h2>Current call</h2>
+      <div class="current" id="currentCall">—</div>
+      <div id="player"></div>
+      <div class="status" id="hostStatus"></div>
+      <div class="tools" style="margin:12px 0 0">
+        <button id="drawBtn">🎲 Draw next symptom</button>
+        <button id="hostNewBtn" class="ghost">New game</button>
+      </div>
+      <div id="callLog"></div>
+    </div>
+
+    <div class="share">
+      <h2>Players — scan to join</h2>
+      <div class="status">Everyone scans this QR (or opens the link) and gets their own unique card.</div>
+      <div id="qr"></div>
+      <div class="status" style="margin-top:8px">Link: <span id="shareUrlLong"></span></div>
+    </div>
+  </div>
+
+  <!-- Player view: their unique card -->
+  <div id="playerView" class="hidden">
+    <header>
+      <h1>Au<span>DHD</span> Bingo</h1>
+      <p class="sub">Game <span id="gameSeed"></span> · You are player <b id="playerId"></b></p>
+    </header>
+
+    <div id="board" class="board" role="grid"></div>
+
+    <div class="tools">
+      <button id="bingoBtn" class="ghost">🎉 BINGO!</button>
+      <button id="playerNewBtn" class="ghost">New card</button>
+    </div>
+    <p class="status" style="margin-top:6px">Tap a called symptom to mark it. The host calls them aloud on the big screen.</p>
+  </div>
+
+  <div class="footer">
+    AuDHD = Autism + ADHD combined. This game shares common lived experiences to raise
+    awareness — it is not a diagnosis. Everyone's neurotype is different; something listed
+    here isn't proof you have AuDHD, and having AuDHD doesn't mean you have every trait.
+    <br><br>
+    Built by Afro Walkman Studios. Free forever.
+  </div>
+</div>
+
+<!-- QR generator (qrcode-generator, MIT) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+<script>
+"use strict";
+var _symptoms = [];       // populated from symptoms.json
+
+// ---------- deterministic PRNG (mulberry32) ----------
+function hashSeed(str){
+  var h=2166136261>>>0;
+  for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
+  return h>>>0;
+}
+function mulberry32(a){
+  return function(){
+    a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+function shuffle(arr, rng){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(rng()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+// ---------- URL / role ----------
+function parseParams(){
+  var q=new URLSearchParams(location.search);
+  return {
+    seed: q.get('s'),                 // shared game seed
+    host: q.get('host')==='1',        // big-screen / server role
+    player: q.get('p')               // explicit player slot (optional)
+  };
+}
+
+function resolvePlayerSlot(seed){
+  // stable per-game player number: explicit ?p= wins, else a random slot stored
+  // per game in sessionStorage so reload keeps the same card.
+  var q=parseParams().player;
+  if(q!=null) return String(q);
+  var key='audhd_p_'+seed;
+  var got=sessionStorage.getItem(key);
+  if(got!=null) return got;
+  var fresh=String((Math.random()*1e9)|0);
+  try{ sessionStorage.setItem(key,fresh); }catch(_){}
+  return fresh;
+}
+
+// ---------- game primitives ----------
+var GRID=5, CELLS=GRID*GRID;
+
+function buildCard(seed, slot){
+  // unique per player: seed + player slot
+  var rng=mulberry32(hashSeed(seed+':'+slot));
+  var order=shuffle(_symptoms.map(function(s,i){return i;}), rng);
+  var grid=[];
+  for(var c=0;c<CELLS;c++){ grid[c]=(c===12)?-1:order[c]; }
+  return grid;
+}
+function buildCallOrder(seed){
+  // SHARED: identical for every player + host (seed only, no slot)
+  var rng=mulberry32(hashSeed(seed));
+  return shuffle(_symptoms.map(function(s,i){return i;}), rng);
+}
+
+// ---------- HOST ----------
+var callOrder=[], callIndex=0;
+function hostStart(seed){
+  document.getElementById('hostSeed').textContent='#'+seed;
+  callOrder=buildCallOrder(seed);
+  callIndex=0;
+  document.getElementById('currentCall').textContent='Ready — draw the first symptom.';
+  document.getElementById('callLog').innerHTML='';
+  document.getElementById('hostStatus').textContent='';
+  document.getElementById('player').innerHTML='';
+  showQR(seed);
+}
+
+document.getElementById('drawBtn').addEventListener('click',function(){
+  draw();
+});
+function draw(){
+  var cur=document.getElementById('currentCall');
+  if(callIndex>=callOrder.length){ cur.textContent='All called. Start a new game!'; return; }
+  var si=callOrder[callIndex++];
+  var sy=_symptoms[si];
+  cur.textContent=callIndex+'. '+sy.name;
+  showVideo(sy);
+  // prepend to log, mark active
+  var log=document.getElementById('callLog');
+  var row=document.createElement('div');
+  row.innerHTML='<span class="active">'+callIndex+'.</span> '+esc(sy.name);
+  log.insertBefore(row, log.firstChild);
+  document.getElementById('hostStatus').textContent=(callOrder.length-callIndex)+' symptoms left to call.';
+}
+
+function showVideo(sy){
+  var box=document.getElementById('player');
+  if(!sy.video){
+    box.innerHTML='<div style="padding:14px;color:#9a97bd">No video clip for this one — keep talking about it!</div>';
+    return;
+  }
+  var url='https://www.youtube.com/embed/'+sy.video.id+
+    '?start='+(sy.video.start||0)+'&end='+(sy.video.end||0)+'&rel=0';
+  box.innerHTML='<iframe src="'+url+'" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+}
+
+function showQR(seed){
+  var base=location.origin+location.pathname;
+  var url=base+'?s='+encodeURIComponent(seed);   // players carry no slot in the QR
+  document.getElementById('shareUrlLong').textContent=url;
+  try{
+    var qr=qrcode(0,'M');
+    qr.addData(url); qr.make();
+    document.getElementById('qr').innerHTML=qr.createImgTag(7,10);
+  }catch(e){ document.getElementById('qr').innerHTML='<p class="status">Scan offline unavailable — copy the link below.</p>'; }
+}
+
+// ---------- PLAYER ----------
+var playerGrid=[], playerMarks=[];
+function playerStart(seed, slot){
+  document.getElementById('gameSeed').textContent='#'+seed;
+  document.getElementById('playerId').textContent=slot;
+  playerGrid=buildCard(seed, slot);
+  playerMarks=[];
+  for(var i=0;i<CELLS;i++) playerMarks.push(false);
+  // free centre
+  if(playerGrid[12]===-1) playerMarks[12]=true;
+  renderBoard();
+}
+
+function renderBoard(){
+  var board=document.getElementById('board');
+  board.innerHTML='';
+  for(var c=0;c<CELLS;c++){
+    var cell=document.createElement('div');
+    cell.className='cell'+(playerGrid[c]===-1?' free':'');
+    if(playerGrid[c]===-1){ cell.textContent='FREE'; }
+    else{
+      var sy=_symptoms[playerGrid[c]];
+      cell.innerHTML=esc(sy.name)+'<span class="num">#'+sy.num+'</span>';
+    }
+    (function(ci){ cell.addEventListener('click',function(){ toggleMark(ci); }); })(c);
+    board.appendChild(cell);
+  }
+  updateMarks();
+}
+function toggleMark(c){
+  if(playerGrid[c]===-1){ playerMarks[c]=true; updateMarks(); return; }
+  playerMarks[c]=!playerMarks[c];
+  updateMarks();
+}
+function updateMarks(){
+  var cells=document.querySelectorAll('#board .cell');
+  for(var i=0;i<cells.length;i++) cells[i].classList.toggle('marked',!!playerMarks[i]);
+}
+
+document.getElementById('bingoBtn').addEventListener('click',function(){
+  if(checkBingo()) alert('BINGO! 🎉 Someone confirm with the host.');
+  else alert('No full line yet — keep going!');
+});
+function checkBingo(){
+  var lines=0;
+  for(var r=0;r<GRID;r++){ var ok=true; for(var c=0;c<GRID;c++){ if(r*GRID+c===12)continue; if(!playerMarks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
+  for(var c=0;c<GRID;c++){ var ok=true; for(var r=0;r<GRID;r++){ if(r*GRID+c===12)continue; if(!playerMarks[r*GRID+c]){ok=false;break;} } if(ok)lines++; }
+  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+i===12)continue; if(!playerMarks[i*GRID+i]){ok=false;} } if(ok)lines++;
+  var ok=true; for(var i=0;i<GRID;i++){ if(i*GRID+(GRID-1-i)===12)continue; if(!playerMarks[i*GRID+(GRID-1-i)]){ok=false;} } if(ok)lines++;
+  return lines>=1;
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x];});}
+
+// ---------- routing ----------
+function hide(id){var e=document.getElementById(id); if(e)e.classList.add('hidden');}
+function show(id){var e=document.getElementById(id); if(e)e.classList.remove('hidden');}
+
+function route(){
+  var p=parseParams();
+  if(p.host){
+    hide('lander'); hide('playerView'); show('hostView');
+    hostStart(p.seed);
+  } else if(p.seed){
+    // a player scanning the shared QR (or following the link)
+    hide('lander'); hide('hostView'); show('playerView');
+    playerStart(p.seed, resolvePlayerSlot(p.seed));
+  } else {
+    hide('hostView'); hide('playerView'); show('lander');
+  }
+}
+
+// new-host: generate a fresh seed and go to host mode
+document.getElementById('hostStartBtn').addEventListener('click',function(){
+  var s=String((Math.random()*1e9)|0);
+  location.search='?s='+s+'&host=1';
+});
+document.getElementById('hostNewBtn').addEventListener('click',function(){
+  document.getElementById('hostStartBtn').click();
+});
+// new card for a player: rotate their slot (new random) but keep the game
+document.getElementById('playerNewBtn').addEventListener('click',function(){
+  var p=parseParams();
+  if(!p.seed) return;
+  var fresh=String((Math.random()*1e9)|0);
+  try{ sessionStorage.setItem('audhd_p_'+p.seed,fresh); }catch(_){}
+  location.search='?s='+p.seed+'&p='+fresh;
+});
+
+// revert to lander (role picker)
+document.getElementById('playerNewBtn'); // no-op anchor for clarity
+
+// ---------- demo(): pure-logic self-check, gated by ?demo=true ----------
+function demo(){
+  _symptoms=[]; for(var i=0;i<30;i++) _symptoms.push({name:'s'+i,num:i+1});
+  // determinism
+  var a=shuffle([0,1,2,3,4],mulberry32(123)), b=shuffle([0,1,2,3,4],mulberry32(123));
+  var same=true; for(var i=0;i<a.length;i++) if(a[i]!==b[i]) same=false;
+  console.assert(same,'same seed => same shuffle');
+  var c=shuffle([0,1,2,3,4],mulberry32(124));
+  console.assert(a.join('')!==c.join(''),'different seed => different shuffle');
+  // shared call order across players + host
+  var o1=buildCallOrder('99'), o2=buildCallOrder('99');
+  var same2=true; for(var i=0;i<o1.length;i++) if(o1[i]!==o2[i]) same2=false;
+  console.assert(same2,'call order deterministic across everyone');
+  // unique cards per player, center always free
+  var gA=buildCard('99','1'), gB=buildCard('99','2');
+  var wholeA=gA.slice(); wholeA.splice(12,1); var wholeB=gB.slice(); wholeB.splice(12,1);
+  var diff=false; for(var i=0;i<wholeA.length;i++) if(wholeA[i]!==wholeB[i]) diff=true;
+  console.assert(diff,'two players => two different cards');
+  console.assert(gA[12]===-1 && gB[12]===-1,'center FREE on both');
+  var uniq={}; for(var i=0;i<gA.length;i++) if(gA[i]!==-1) uniq[gA[i]]=1;
+  console.assert(Object.keys(uniq).length===24,'24 distinct symptoms per card, no dupes');
+  console.log('DEMO OK');
+}
+
+// ---------- startup ----------
+(function start(){
+  if(location.search.indexOf('demo=true')>=0){ demo(); return; }
+  if(typeof fetch !== 'function'){ console.log('NO FETCH (harness)'); return; }
+  fetch('symptoms.json')
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(data){
+      var vids=data.videos||{};
+      _symptoms=data.symptoms.map(function(sy,i){
+        var v=vids[sy.video];
+        return {name:sy.name, video:v?{id:v.id,start:sy.start,end:sy.end}:null, num:i+1};
+      });
+      route();
+    })
+    .catch(function(err){
+      var e=document.getElementById('player');
+      var c=document.getElementById('currentCall');
+      if(c) c.textContent='Could not load game data: '+esc(err.message);
+      if(e) e.innerHTML='';
+    });
+})();
+</script>
+</body>
+</html>
