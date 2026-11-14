@@ -93,7 +93,9 @@
           <div id="player"></div>
           <button id="clipNext" class="gallery-btn" aria-label="Next clip">▶</button>
         </div>
-        <div class="cliplabel"><span id="clipTitle"></span> <span id="clipCount" class="dim"></span></div>
+        <div class="cliplabel"><span id="clipTitle"></span> <span id="clipCount" class="dim"></span>
+          <button id="sortToggle" class="ghost" style="padding:2px 8px;font-size:.7rem;margin-left:8px" title="Order clips by keyword match or BERT semantic similarity">🧠 Semantic order</button>
+        </div>
         <div id="transFrame" class="trans hidden">
           <button id="transToggle" class="trans-toggle">Transcript of this clip <span id="transCaret">▸</span></button>
           <div id="transBody" class="trans-body" style="max-height:180px"></div>
@@ -281,10 +283,17 @@ function draw(){
   document.getElementById('hostStatus').textContent=(callOrder.length-callIndex)+' symptoms left to call.';
 }
 
-var curSy=null, curClipIdx=0, transCache={}, DATA_VERSION='5';
+var curSy=null, curClipIdx=0, transCache={}, DATA_VERSION='6';
 
 function showVideo(sy){
   curSy=sy;
+  if(curSy && curSy.clips){
+    // base order as authored; sem order = similarity descending, ties stable
+    curSy._ord=curSy.clips.map(function(_,i){return i;});
+    curSy._sem=curSy.clips.map(function(_,i){return i;}).slice().sort(function(a,b){
+      return (curSy.clips[b].sem-curSy.clips[a].sem)||(a-b);
+    });
+  }
   curClipIdx=0;
   renderClip();
 }
@@ -301,7 +310,7 @@ function renderClip(){
     document.getElementById('transFrame').classList.add('hidden');
     return;
   }
-  var clip=curSy.clips[curClipIdx];
+  var clip=curSy.clips[(curSy._semMode?curSy._sem:curSy._ord)[curClipIdx]];
   var url='https://www.youtube.com/embed/'+clip.id+
     '?start='+(clip.start||0)+'&end='+(clip.end||0)+'&rel=0&autoplay=0';
   box.innerHTML='<iframe src="'+url+'" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
@@ -309,6 +318,8 @@ function renderClip(){
   cnt.textContent='  '+(curClipIdx+1)+' / '+curSy.clips.length;
   prev.disabled=curClipIdx===0;
   next.disabled=curClipIdx===curSy.clips.length-1;
+  var hasSem=curSy.clips.some(function(c){return c.sem>0;});
+  document.getElementById('sortToggle').style.display=hasSem?'inline-block':'none';
   loadTranscript(clip);
 }
 
@@ -317,6 +328,16 @@ document.getElementById('clipPrev').addEventListener('click',function(){
 });
 document.getElementById('clipNext').addEventListener('click',function(){
   if(curSy && curClipIdx<curSy.clips.length-1){ curClipIdx++; renderClip(); }
+});
+// toggle clip gallery ordering: as-authored (keyword-first) vs BERT-semantic
+var sortSem=false;
+document.getElementById('sortToggle').addEventListener('click',function(){
+  if(!curSy || !curSy.clips || curSy.clips.length<2) return;
+  sortSem=!sortSem;
+  curSy._semMode=sortSem;
+  curClipIdx=0;
+  renderClip();
+  this.textContent=sortSem?'🔤 Keyword order':'🧠 Semantic order';
 });
 
 // transcript: filled lazily and shown when the user unfolds the frame (which is
@@ -670,7 +691,7 @@ function demo(){
         var clips=(sy.clips||[]).map(function(c){
           var v=vids[c.video]; if(!v) return null;
           return {id:v.id, title:c.title||v.title, start:c.start, end:c.end,
-                  text:c.text||''};
+                  text:c.text||'', sem:c.sem||0, score:c.score||0};
         }).filter(Boolean);
         return {name:sy.name, clips: clips, num:i+1,
                 desc:sy.desc||'', sources:sy.sources||[]};

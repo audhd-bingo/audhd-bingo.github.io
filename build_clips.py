@@ -14,7 +14,6 @@ One-time note: this is DETERMINISTIC offline stored data (a "sample in advance"
 approach) — the live site just plays the recorded clip windows, no runtime AA.
 """
 import argparse, json, os, re, subprocess, sys
-
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SYMPTOMS_JSON = os.path.join(ROOT, "symptoms.json")
 TRANS_DIR = os.path.join(ROOT, "transcripts")
@@ -430,10 +429,11 @@ def build(transcripts):
             for w in wins:
                 if w["score"] < 2:
                     continue   # gate: a generic single-word hit is not a clip
+                s2, e2 = _expand_to_sentence(rec, w["s"], w["e"])
                 key = vidShort[vid]
                 sym["clips"].append({
-                    "video": key, "start": round(w["s"]), "end": round(w["e"]),
-                    "score": w["score"], "title": title, "text": seg_text(rec, w)
+                    "video": key, "start": round(s2), "end": round(e2),
+                    "score": w["score"], "title": title, "text": seg_text(rec, {"s": s2, "e": e2})
                 })
         # order all clips across videos by score
         sym["clips"].sort(key=lambda c: -c["score"])
@@ -459,10 +459,103 @@ def seg_text(rec, w):
                     if sg["s"] >= w["s"] and sg["e"] <= w["e"])
 
 
+_FINAL = re.compile(r'[.?!…]["\'”’)\]]*\s*$')
+
+def _expand_to_sentence(rec, s, e, cap_segs=4):
+    """Expand [s,e] to self-contained sentence boundaries.
+
+    Backward: include previous segments while the preceding segment does not
+    end with final punctuation (the sentence started earlier).
+    Forward: include following segments until one ends with final punctuation.
+    cap_segs bounds how far we roam so a clip never swallows a new topic.
+    """
+    segs = rec["segments"]
+    if not segs:
+        return s, e
+    i = next((k for k, g in enumerate(segs) if g["e"] >= s), 0)
+    j = next((k for k, g in enumerate(segs) if g["s"] > e), len(segs))
+    # backward: prepend while the kept start doesn't begin a sentence
+    k = i
+    for _ in range(cap_segs):
+        if k == 0:
+            break
+        if _FINAL.search(segs[k - 1]["text"]):
+            break
+        k -= 1
+    # forward: append until a segment ends a sentence
+    m = max(j - 1, i)
+    for _ in range(cap_segs):
+        if m >= len(segs) - 1:
+            break
+        if _FINAL.search(segs[m]["text"]):
+            break
+        m += 1
+    return segs[k]["s"], segs[m]["e"]
+
+
+# ---------- semantic (BERT) extra matches ----------
+# Appends clip windows ranked by sentence-embedding cosine similarity between
+# the symptom's TTS description and transcript windows. Keyword clips keep the
+# leading positions; semantic clips are appended AFTER them so the original
+# gallery order stands. Uses a local SBERT MiniLM model; lazy import so the
+# plain --score path never needs torch.
+SEM_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+WIN_SEGS = 8      # transcript segments per candidate window (~16s of speech)
+WIN_STEP = 4      # overlap between candidate windows
+SEM_THRESHOLD = 0.42
+SEM_MAX = 3       # extra clips appended per symptom
+SEM_OVERLAP = 8   # seconds; skip windows too close to an existing clip
+
+def _embed(model, texts):
+    import numpy as np
+    embs = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+    return np.asarray(embs)
+
+def add_semantic(transcripts, sym, model):
+    desc = (sym.get("desc") or "").strip()
+    if not desc:
+        return
+    import numpy as np
+    dvec = _embed(model, [desc])[0]
+    # stamp sem on the existing keyword clips too (uniform sorting key)
+    for c in sym.get("clips", []):
+        c["sem"] = round(float(dvec @ _embed(model, [c.get("text","")])[0]), 3)
+    take = list(sym.get("clips", []))  # preserve keyword order
+    used = [(c["start"], c["end"]) for c in take]
+    adds = []
+    for vid, title in VIDEOS.items():
+        rec = transcripts.get(vid)
+        if not rec or not rec.get("segments"):
+            continue
+        segs = rec["segments"]
+        wins = []
+        for i in range(0, max(1, len(segs) - WIN_SEGS + 1), WIN_STEP):
+            s = segs[i]["s"]
+            e = segs[i + WIN_SEGS - 1]["e"]
+            wins.append({"s": s, "e": e, "text": " ".join(g["text"] for g in segs[i:i+WIN_SEGS])})
+        if not wins:
+            continue
+        m = _embed(model, [w["text"] for w in wins])
+        sims = m @ dvec
+        for w, sim in zip(wins, sims):
+            if float(sim) < SEM_THRESHOLD:
+                continue
+            s2, e2 = _expand_to_sentence(rec, w["s"], w["e"])
+            # too close to an existing clip OR an already-kept semantic clip?
+            if any(abs(w["s"] - a) < SEM_OVERLAP for a, _ in used + [(x["start"], x["end"]) for x in adds]):
+                continue
+            adds.append({"video": "v" + vid[:6], "start": round(s2), "end": round(e2),
+                         "score": 0, "sem": round(float(sim), 3),
+                         "title": title, "text": seg_text(rec, {"s": s2, "e": e2})[:600]})
+    adds.sort(key=lambda c: -c["sem"])
+    sym["clips"] = take + adds[:SEM_MAX]   # keyword order first, then semantic
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fetch", action="store_true")
     ap.add_argument("--score", action="store_true")
+    ap.add_argument("--semantic", action="store_true", help="append BERT-semantic matches after keyword clips")
     a = ap.parse_args()
     transcripts = fetch_transcripts(force=a.fetch) if a.fetch else {
         f[:-5]: json.load(open(os.path.join(TRANS_DIR, f)))
@@ -470,7 +563,16 @@ def main():
     }
     if a.score:
         build(transcripts)
-    else:
+    if a.semantic:
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer(SEM_MODEL)
+        data = load_symptoms()
+        for sym in data["symptoms"]:
+            add_semantic(transcripts, sym, model)
+        json.dump(data, open(SYMPTOMS_JSON, "w"), ensure_ascii=False, indent=2)
+        n = sum(len(s["clips"]) for s in data["symptoms"])
+        print(f"semantic pass done; {n} total clips across {len(data['symptoms'])} symptoms")
+    if not (a.score or a.semantic):
         print("transcripts ready. run with --score to build symptoms.json + review.csv")
 
 
